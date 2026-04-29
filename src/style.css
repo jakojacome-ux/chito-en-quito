@@ -5,7 +5,6 @@ body {
   width: 100%;
   height: 100%;
   overflow: hidden;
-  background: #8ed7ff;
   font-family: Arial, Helvetica, sans-serif;
 
   touch-action: none;
@@ -13,28 +12,106 @@ body {
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+
+  background: #06111f;
 }
 
 body {
+  position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
+/* ========================= */
+/* FONDO EXTERIOR PREMIUM */
+/* ========================= */
+
+/* Fondo extendido del mismo mundo del juego */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -32px;
+  z-index: 0;
+
+  background-image:
+    linear-gradient(
+      90deg,
+      rgba(6, 17, 31, 0.88) 0%,
+      rgba(6, 17, 31, 0.48) 18%,
+      rgba(6, 17, 31, 0.12) 50%,
+      rgba(6, 17, 31, 0.48) 82%,
+      rgba(6, 17, 31, 0.88) 100%
+    ),
+    url("/assets/backgrounds/level1/historic_buildings_mid.png"),
+    url("/assets/backgrounds/level1/mountains_back.png"),
+    url("/assets/backgrounds/level1/sky_back.png");
+
+  background-repeat: no-repeat, repeat-x, repeat-x, repeat-x;
+  background-position: center center, center center, center center, center center;
+  background-size: cover, auto 100%, auto 100%, auto 100%;
+
+  filter: blur(18px) saturate(0.92) brightness(0.82);
+  transform: scale(1.08);
+  opacity: 1;
+}
+
+/* Viñeta para que los laterales se sientan intencionales */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(255, 206, 135, 0.08) 0%,
+      rgba(6, 17, 31, 0.02) 42%,
+      rgba(6, 17, 31, 0.66) 100%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(6, 17, 31, 0.86) 0%,
+      rgba(6, 17, 31, 0.28) 16%,
+      rgba(6, 17, 31, 0) 36%,
+      rgba(6, 17, 31, 0) 64%,
+      rgba(6, 17, 31, 0.28) 84%,
+      rgba(6, 17, 31, 0.86) 100%
+    );
+}
+
+/* ========================= */
+/* CONTENEDOR DEL JUEGO */
+/* ========================= */
+
 #app {
+  position: relative;
+  z-index: 2;
+
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: #8ed7ff;
+
+  background: transparent;
   touch-action: none;
 }
 
 canvas {
   display: block;
   margin: auto;
+
+  background: #8ed7ff;
+
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
+
+  box-shadow:
+    0 0 0 1px rgba(255, 223, 119, 0.18),
+    0 22px 70px rgba(0, 0, 0, 0.42),
+    0 0 90px rgba(255, 191, 56, 0.08);
 }
 
 /* ========================= */
@@ -46,10 +123,13 @@ canvas {
   left: 0;
   right: 0;
   bottom: calc(env(safe-area-inset-bottom) + 24px);
+
   z-index: 8000;
   display: none;
+
   justify-content: space-between;
   align-items: flex-end;
+
   padding: 0 44px;
   pointer-events: none;
 }
@@ -61,43 +141,57 @@ canvas {
   pointer-events: auto;
 }
 
+/* Área táctil buena, visual liviano */
 .mobile-btn {
   position: relative;
+
   width: 74px;
   height: 74px;
   border-radius: 50%;
+
   border: none;
   background: rgba(0, 0, 0, 0.02);
   box-shadow: none;
-  color: rgba(255, 255, 255, 0.9);
+
+  color: rgba(255, 255, 255, 0.92);
   font-size: 48px;
   font-weight: 900;
   line-height: 1;
+
   display: grid;
   place-items: center;
+
   padding: 0;
   margin: 0;
   outline: none;
+
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+
   text-shadow:
-    0 4px 0 rgba(0, 0, 0, 0.35),
-    0 0 14px rgba(0, 0, 0, 0.25);
+    0 4px 0 rgba(0, 0, 0, 0.36),
+    0 0 14px rgba(0, 0, 0, 0.34);
 }
 
 .mobile-btn::before {
   content: "";
   position: absolute;
   inset: 6px;
+
   border-radius: 50%;
-  background: rgba(0, 0, 0, 0);
-  box-shadow: none;
+  background: rgba(6, 17, 31, 0.08);
+
+  box-shadow:
+    0 10px 28px rgba(0, 0, 0, 0.12),
+    inset 0 0 0 2px rgba(255, 223, 119, 0.08);
+
   transition:
     background 90ms ease,
     transform 90ms ease,
     box-shadow 90ms ease;
+
   z-index: -1;
 }
 
@@ -109,15 +203,16 @@ canvas {
 .mobile-btn-yellow {
   color: rgba(58, 27, 8, 0.92);
   text-shadow:
-    0 3px 0 rgba(255, 255, 255, 0.25),
+    0 3px 0 rgba(255, 255, 255, 0.22),
     0 0 12px rgba(255, 255, 255, 0.22);
 }
 
 .mobile-btn.is-pressed::before {
-  background: rgba(6, 17, 31, 0.48);
+  background: rgba(6, 17, 31, 0.58);
   box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.32),
-    inset 0 0 0 4px rgba(255, 223, 119, 0.35);
+    0 8px 18px rgba(0, 0, 0, 0.36),
+    inset 0 0 0 4px rgba(255, 223, 119, 0.36);
+
   transform: scale(0.94);
 }
 
@@ -149,7 +244,9 @@ canvas {
   inset: 0;
   display: none;
   place-items: center;
+
   z-index: 9999;
+
   background: radial-gradient(circle at top, #163a60, #06111f 72%);
   color: #fff2dc;
   text-align: center;
@@ -160,6 +257,7 @@ canvas {
   width: min(88vw, 420px);
   padding: 28px 24px;
   border-radius: 28px;
+
   background: rgba(6, 17, 31, 0.9);
   border: 3px solid rgba(255, 191, 56, 0.85);
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
@@ -172,6 +270,7 @@ canvas {
 
 .rotate-card h1 {
   margin: 0 0 10px;
+
   font-size: 34px;
   color: #ffbf38;
   text-shadow: 0 4px 0 #3a1b08;
@@ -179,6 +278,7 @@ canvas {
 
 .rotate-card p {
   margin: 0;
+
   font-size: 18px;
   line-height: 1.35;
   color: #fff2dc;
