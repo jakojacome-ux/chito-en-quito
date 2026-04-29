@@ -16,10 +16,14 @@ export default class Level1Scene extends Phaser.Scene {
     this.cursors = null
     this.keys = null
 
-    this.hudText = null
+    this.logoText = null
+    this.levelText = null
+    this.heartsText = null
+    this.coffeeText = null
+    this.scoreText = null
     this.messageText = null
-    this.gameOverText = null
-    this.victoryText = null
+    this.pauseButton = null
+    this.pauseOverlay = []
 
     this.coffeeCount = 0
     this.totalCoffee = 6
@@ -29,11 +33,11 @@ export default class Level1Scene extends Phaser.Scene {
     this.isInvulnerable = false
     this.isGameOver = false
     this.isVictory = false
+    this.isPaused = false
     this.goalMessageCooldown = false
 
     this.selectedCharacter = 'jako'
 
-    // Controles táctiles
     this.touchLeft = false
     this.touchRight = false
     this.touchDash = false
@@ -47,13 +51,11 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   preload() {
-    // Fondos por capas
     this.load.image('sky', '/assets/backgrounds/level1/sky_back.png')
     this.load.image('mountains', '/assets/backgrounds/level1/mountains_back.png')
     this.load.image('cityFar', '/assets/backgrounds/level1/city_far.png')
     this.load.image('buildingsMid', '/assets/backgrounds/level1/historic_buildings_mid.png')
 
-    // Jako
     this.load.image('jakoIdle1', '/assets/characters/jako/jako_idle_01.png')
     this.load.image('jakoIdle2', '/assets/characters/jako/jako_idle_02.png')
     this.load.image('jakoRun1', '/assets/characters/jako/jako_run_01.png')
@@ -62,7 +64,6 @@ export default class Level1Scene extends Phaser.Scene {
     this.load.image('jakoJump', '/assets/characters/jako/jako_jump.png')
     this.load.image('jakoFall', '/assets/characters/jako/jako_fall.png')
 
-    // Estefi
     this.load.image('estefiIdle1', '/assets/characters/estefi/estefi_idle_01.png')
     this.load.image('estefiIdle2', '/assets/characters/estefi/estefi_idle_02.png')
     this.load.image('estefiRun1', '/assets/characters/estefi/estefi_run_01.png')
@@ -71,7 +72,6 @@ export default class Level1Scene extends Phaser.Scene {
     this.load.image('estefiJump', '/assets/characters/estefi/estefi_jump.png')
     this.load.image('estefiFall', '/assets/characters/estefi/estefi_fall.png')
 
-    // Astro
     this.load.image('astroIdle1', '/assets/characters/astro/astro_idle_01.png')
     this.load.image('astroIdle2', '/assets/characters/astro/astro_idle_02.png')
     this.load.image('astroRun1', '/assets/characters/astro/astro_run_01.png')
@@ -79,7 +79,6 @@ export default class Level1Scene extends Phaser.Scene {
     this.load.image('astroRun3', '/assets/characters/astro/astro_run_03.png')
     this.load.image('astroJump', '/assets/characters/astro/astro_jump.png')
 
-    // Props reales
     this.load.image('coffeeAsset', '/assets/props/level1/pickup_cafe_refinado.png')
     this.load.image('cafeGoalAsset', '/assets/props/level1/goal_cafeteria_meta.png')
     this.load.image('farolAsset', '/assets/props/level1/prop_farol_colonial.png')
@@ -99,6 +98,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.isInvulnerable = false
     this.isGameOver = false
     this.isVictory = false
+    this.isPaused = false
     this.goalMessageCooldown = false
 
     this.touchLeft = false
@@ -107,6 +107,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.touchJump = false
     this.touchJumpQueued = false
     this.touchButtons = []
+    this.pauseOverlay = []
 
     this.createTextures()
     this.createBackground()
@@ -125,19 +126,16 @@ export default class Level1Scene extends Phaser.Scene {
   createTextures() {
     const g = this.make.graphics({ x: 0, y: 0, add: false })
 
-    // Cuerpo físico invisible del jugador
     g.clear()
     g.fillStyle(0xffffff, 0.01)
     g.fillRect(0, 0, 70, 140)
     g.generateTexture('playerBody', 70, 140)
 
-    // Cuerpo físico invisible de plataformas
     g.clear()
     g.fillStyle(0xffffff, 0.01)
     g.fillRect(0, 0, 64, 44)
     g.generateTexture('platformBody', 64, 44)
 
-    // Suelo continuo
     g.clear()
     g.fillStyle(0x7b5135, 1)
     g.fillRect(0, 0, 128, 180)
@@ -163,10 +161,8 @@ export default class Level1Scene extends Phaser.Scene {
 
     g.lineStyle(3, 0xe0b15f, 1)
     g.strokeRect(0, 0, 128, 180)
-
     g.generateTexture('cleanGroundTile', 128, 180)
 
-    // Plataforma piedra limpia
     g.clear()
     g.fillStyle(0x6e4a33, 1)
     g.fillRect(0, 0, 128, 64)
@@ -184,7 +180,6 @@ export default class Level1Scene extends Phaser.Scene {
 
     g.generateTexture('cleanStonePlatform', 128, 64)
 
-    // Plataforma madera limpia
     g.clear()
     g.fillStyle(0x8b552c, 1)
     g.fillRect(0, 0, 128, 64)
@@ -206,15 +201,12 @@ export default class Level1Scene extends Phaser.Scene {
 
     g.generateTexture('cleanWoodPlatform', 128, 64)
 
-    // Partícula simple
     g.clear()
     g.fillStyle(0xffd978, 1)
     g.fillCircle(8, 8, 8)
     g.generateTexture('coffeeParticle', 16, 16)
 
-    // Ladrón placeholder
     g.clear()
-
     g.fillStyle(0x000000, 0.18)
     g.fillEllipse(39, 103, 60, 14)
 
@@ -275,7 +267,6 @@ export default class Level1Scene extends Phaser.Scene {
   createPlatforms() {
     this.platforms = this.physics.add.staticGroup()
 
-    // Suelo principal
     this.addGround(0, 720, 4200, 180)
 
     const platformData = [
@@ -330,6 +321,16 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   addCleanPlatform(x, y, width, height, visualKey) {
+    const shadow = this.add.rectangle(
+      x + width / 2,
+      y + height / 2 + 12,
+      width,
+      64,
+      0x000000,
+      0.14
+    )
+    shadow.setDepth(4)
+
     const base = this.add.rectangle(
       x + width / 2,
       y + height / 2,
@@ -378,6 +379,9 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   addProp(x, bottomY, key, height) {
+    const shadow = this.add.ellipse(x, bottomY + 4, height * 0.65, 18, 0x000000, 0.16)
+    shadow.setDepth(8)
+
     const prop = this.add.image(x, bottomY, key)
     prop.setOrigin(0.5, 1)
     prop.setDisplaySize((prop.width / prop.height) * height, height)
@@ -398,13 +402,6 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   getCharacterDisplaySize() {
-    if (this.selectedCharacter === 'estefi') {
-      return {
-        width: 150,
-        height: 150
-      }
-    }
-
     return {
       width: 150,
       height: 150
@@ -419,6 +416,9 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.platforms)
 
+    this.playerShadow = this.add.ellipse(this.player.x, this.player.y + 72, 90, 22, 0x000000, 0.2)
+    this.playerShadow.setDepth(17)
+
     this.playerVisual = this.add.image(
       this.player.x,
       this.player.y + 70,
@@ -429,6 +429,9 @@ export default class Level1Scene extends Phaser.Scene {
     const size = this.getCharacterDisplaySize()
     this.playerVisual.setDisplaySize(size.width, size.height)
     this.playerVisual.setDepth(20)
+
+    this.astroShadow = this.add.ellipse(this.player.x - 105, this.player.y + 72, 76, 18, 0x000000, 0.18)
+    this.astroShadow.setDepth(16)
 
     this.astro = this.add.image(this.player.x - 105, this.player.y + 70, 'astroIdle1')
     this.astro.setOrigin(0.5, 1)
@@ -489,27 +492,9 @@ export default class Level1Scene extends Phaser.Scene {
     })
 
     const enemyData = [
-      {
-        x: 1380,
-        y: 718,
-        minX: 1240,
-        maxX: 1500,
-        speed: 120
-      },
-      {
-        x: 2470,
-        y: 718,
-        minX: 2320,
-        maxX: 2610,
-        speed: 125
-      },
-      {
-        x: 3600,
-        y: 718,
-        minX: 3440,
-        maxX: 3760,
-        speed: 130
-      }
+      { x: 1380, y: 718, minX: 1240, maxX: 1500, speed: 120 },
+      { x: 2470, y: 718, minX: 2320, maxX: 2610, speed: 125 },
+      { x: 3600, y: 718, minX: 3440, maxX: 3760, speed: 130 }
     ]
 
     enemyData.forEach((data) => {
@@ -611,7 +596,7 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   handleEnemyCollision() {
-    if (this.isInvulnerable || this.isGameOver || this.isVictory) return
+    if (this.isInvulnerable || this.isGameOver || this.isVictory || this.isPaused) return
 
     this.lives -= 1
     this.updateHud()
@@ -653,7 +638,7 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   handleGoalOverlap() {
-    if (this.isGameOver || this.isVictory) return
+    if (this.isGameOver || this.isVictory || this.isPaused) return
 
     if (this.coffeeCount < this.totalCoffee) {
       if (!this.goalMessageCooldown) {
@@ -702,7 +687,7 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.victoryText.setOrigin(0.5)
     this.victoryText.setScrollFactor(0)
-    this.victoryText.setDepth(100)
+    this.victoryText.setDepth(150)
 
     this.tweens.add({
       targets: this.victoryText,
@@ -732,7 +717,7 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.gameOverText.setOrigin(0.5)
     this.gameOverText.setScrollFactor(0)
-    this.gameOverText.setDepth(100)
+    this.gameOverText.setDepth(150)
   }
 
   createControls() {
@@ -743,7 +728,8 @@ export default class Level1Scene extends Phaser.Scene {
       right: Phaser.Input.Keyboard.KeyCodes.D,
       jump: Phaser.Input.Keyboard.KeyCodes.W,
       dash: Phaser.Input.Keyboard.KeyCodes.SHIFT,
-      restart: Phaser.Input.Keyboard.KeyCodes.R
+      restart: Phaser.Input.Keyboard.KeyCodes.R,
+      pause: Phaser.Input.Keyboard.KeyCodes.ESC
     })
   }
 
@@ -754,44 +740,67 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createHud() {
-    const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.45)
+    const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.32)
     hudBg.setScrollFactor(0)
     hudBg.setDepth(90)
 
-    const logo = this.add.text(36, 12, 'Chito\nQuito', {
+    this.logoText = this.add.text(32, 14, 'Chito\nQuito', {
       fontFamily: 'Arial',
       fontSize: '30px',
       fontStyle: 'bold',
       color: '#ffbf38',
-      lineSpacing: -10
+      lineSpacing: -10,
+      stroke: '#06223f',
+      strokeThickness: 3
     })
+    this.logoText.setScrollFactor(0)
+    this.logoText.setDepth(91)
 
-    logo.setScrollFactor(0)
-    logo.setDepth(91)
-
-    const level = this.add.text(220, 24, 'Nivel 1 · Centro Histórico', {
+    this.createHudPill(172, 16, 430, 52, 0x6d3f20, 0xffbf38)
+    this.levelText = this.add.text(195, 26, 'Nivel 1 · Centro Histórico', {
       fontFamily: 'Arial',
-      fontSize: '30px',
+      fontSize: '26px',
+      fontStyle: 'bold',
+      color: '#fff2dc'
+    })
+    this.levelText.setScrollFactor(0)
+    this.levelText.setDepth(93)
+
+    this.createHudPill(650, 16, 170, 52, 0x6d3f20, 0xffbf38)
+    this.heartsText = this.add.text(674, 26, '❤️❤️❤️', {
+      fontFamily: 'Arial',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#ffffff'
     })
+    this.heartsText.setScrollFactor(0)
+    this.heartsText.setDepth(93)
 
-    level.setScrollFactor(0)
-    level.setDepth(91)
-
-    this.hudText = this.add.text(760, 24, '', {
+    this.createHudPill(850, 16, 150, 52, 0x3d812d, 0xb7f57e)
+    this.coffeeText = this.add.text(878, 26, '☕ 0/6', {
       fontFamily: 'Arial',
-      fontSize: '30px',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#ffffff'
     })
+    this.coffeeText.setScrollFactor(0)
+    this.coffeeText.setDepth(93)
 
-    this.hudText.setScrollFactor(0)
-    this.hudText.setDepth(91)
-
-    this.messageText = this.add.text(800, 130, '', {
+    this.createHudPill(1030, 16, 190, 52, 0x166aa3, 0x7bd6ff)
+    this.scoreText = this.add.text(1058, 26, '⭐ 000000', {
       fontFamily: 'Arial',
-      fontSize: '34px',
+      fontSize: '26px',
+      fontStyle: 'bold',
+      color: '#ffffff'
+    })
+    this.scoreText.setScrollFactor(0)
+    this.scoreText.setDepth(93)
+
+    this.createPauseButton()
+
+    this.messageText = this.add.text(800, 128, '', {
+      fontFamily: 'Arial',
+      fontSize: '32px',
       fontStyle: 'bold',
       color: '#ffdf77',
       stroke: '#3a1b08',
@@ -806,11 +815,53 @@ export default class Level1Scene extends Phaser.Scene {
     this.updateHud()
   }
 
+  createHudPill(x, y, width, height, color, strokeColor) {
+    const shadow = this.add.rectangle(x + width / 2, y + height / 2 + 5, width, height, 0x000000, 0.22)
+    shadow.setScrollFactor(0)
+    shadow.setDepth(91)
+
+    const pill = this.add.rectangle(x + width / 2, y + height / 2, width, height, color, 0.92)
+    pill.setStrokeStyle(4, strokeColor, 0.75)
+    pill.setScrollFactor(0)
+    pill.setDepth(92)
+
+    return pill
+  }
+
+  createPauseButton() {
+    const x = 1530
+    const y = 43
+
+    const shadow = this.add.circle(x, y + 5, 36, 0x000000, 0.25)
+    shadow.setScrollFactor(0)
+    shadow.setDepth(100)
+
+    this.pauseButton = this.add.circle(x, y, 36, 0xffbf38, 0.95)
+    this.pauseButton.setStrokeStyle(4, 0xffffff, 0.38)
+    this.pauseButton.setScrollFactor(0)
+    this.pauseButton.setDepth(101)
+    this.pauseButton.setInteractive({ useHandCursor: true })
+
+    const icon = this.add.text(x, y, 'Ⅱ', {
+      fontFamily: 'Arial',
+      fontSize: '34px',
+      fontStyle: 'bold',
+      color: '#3a1b08'
+    })
+    icon.setOrigin(0.5)
+    icon.setScrollFactor(0)
+    icon.setDepth(102)
+
+    this.pauseButton.on('pointerup', () => {
+      this.togglePause()
+    })
+  }
+
   createTouchControls() {
     const leftButton = this.createTouchButton({
-      x: 110,
-      y: 790,
-      label: '◀',
+      x: 96,
+      y: 792,
+      label: '←',
       color: 0x27bdff,
       onDown: () => {
         this.touchLeft = true
@@ -821,9 +872,9 @@ export default class Level1Scene extends Phaser.Scene {
     })
 
     const rightButton = this.createTouchButton({
-      x: 235,
-      y: 790,
-      label: '▶',
+      x: 218,
+      y: 792,
+      label: '→',
       color: 0x27bdff,
       onDown: () => {
         this.touchRight = true
@@ -834,8 +885,8 @@ export default class Level1Scene extends Phaser.Scene {
     })
 
     const dashButton = this.createTouchButton({
-      x: 1335,
-      y: 790,
+      x: 1355,
+      y: 792,
       label: '⚡',
       color: 0x9b55ff,
       onDown: () => {
@@ -847,9 +898,9 @@ export default class Level1Scene extends Phaser.Scene {
     })
 
     const jumpButton = this.createTouchButton({
-      x: 1480,
-      y: 790,
-      label: '▲',
+      x: 1490,
+      y: 792,
+      label: '↑',
       color: 0xffbf38,
       onDown: () => {
         this.touchJump = true
@@ -864,29 +915,32 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createTouchButton({ x, y, label, color, onDown, onUp }) {
-    const shadow = this.add.circle(x, y + 8, 48, 0x000000, 0.28)
+    const shadow = this.add.circle(x, y + 8, 52, 0x000000, 0.25)
     shadow.setScrollFactor(0)
     shadow.setDepth(120)
 
-    const button = this.add.circle(x, y, 48, color, 0.86)
-    button.setStrokeStyle(4, 0xffffff, 0.42)
+    const button = this.add.circle(x, y, 52, color, 0.72)
+    button.setStrokeStyle(5, 0xffdf77, 0.86)
     button.setScrollFactor(0)
     button.setDepth(121)
     button.setInteractive({ useHandCursor: true })
 
     const text = this.add.text(x, y + 1, label, {
       fontFamily: 'Arial',
-      fontSize: '38px',
+      fontSize: '44px',
       fontStyle: 'bold',
       color: '#ffffff',
       stroke: '#13233a',
       strokeThickness: 5
     })
+
     text.setOrigin(0.5)
     text.setScrollFactor(0)
     text.setDepth(122)
 
     const press = () => {
+      if (this.isPaused || this.isGameOver || this.isVictory) return
+
       button.setScale(0.92)
       shadow.setScale(0.92)
       text.setScale(0.92)
@@ -912,19 +966,135 @@ export default class Level1Scene extends Phaser.Scene {
     }
   }
 
+  togglePause() {
+    if (this.isGameOver || this.isVictory) return
+
+    if (this.isPaused) {
+      this.resumeGame()
+    } else {
+      this.pauseGame()
+    }
+  }
+
+  pauseGame() {
+    this.isPaused = true
+    this.touchLeft = false
+    this.touchRight = false
+    this.touchDash = false
+    this.touchJump = false
+    this.touchJumpQueued = false
+
+    this.player.setVelocity(0, 0)
+    this.physics.pause()
+
+    this.createPauseOverlay()
+  }
+
+  resumeGame() {
+    this.isPaused = false
+    this.physics.resume()
+
+    this.pauseOverlay.forEach((item) => item.destroy())
+    this.pauseOverlay = []
+  }
+
+  createPauseOverlay() {
+    this.pauseOverlay.forEach((item) => item.destroy())
+    this.pauseOverlay = []
+
+    const dim = this.add.rectangle(800, 450, 1600, 900, 0x06111f, 0.66)
+    dim.setScrollFactor(0)
+    dim.setDepth(140)
+
+    const panel = this.add.rectangle(800, 450, 610, 420, 0x081a2d, 0.96)
+    panel.setStrokeStyle(5, 0xffbf38, 0.9)
+    panel.setScrollFactor(0)
+    panel.setDepth(141)
+
+    const title = this.add.text(800, 310, 'Pausa', {
+      fontFamily: 'Arial',
+      fontSize: '58px',
+      fontStyle: 'bold',
+      color: '#ffbf38',
+      stroke: '#3a1b08',
+      strokeThickness: 8
+    })
+    title.setOrigin(0.5)
+    title.setScrollFactor(0)
+    title.setDepth(142)
+
+    const resume = this.createPauseMenuButton(800, 410, 'Continuar', () => {
+      this.resumeGame()
+    })
+
+    const restart = this.createPauseMenuButton(800, 510, 'Reiniciar nivel', () => {
+      this.physics.resume()
+      this.scene.restart({
+        selectedCharacter: this.selectedCharacter
+      })
+    })
+
+    const menu = this.createPauseMenuButton(800, 610, 'Volver al menú', () => {
+      this.physics.resume()
+      this.scene.start('MenuScene')
+    })
+
+    this.pauseOverlay.push(dim, panel, title, ...resume, ...restart, ...menu)
+  }
+
+  createPauseMenuButton(x, y, label, callback) {
+    const shadow = this.add.rectangle(x, y + 7, 370, 64, 0x000000, 0.26)
+    shadow.setScrollFactor(0)
+    shadow.setDepth(142)
+
+    const button = this.add.rectangle(x, y, 370, 64, 0xffbf38, 0.96)
+    button.setStrokeStyle(4, 0xffffff, 0.36)
+    button.setScrollFactor(0)
+    button.setDepth(143)
+    button.setInteractive({ useHandCursor: true })
+
+    const text = this.add.text(x, y, label, {
+      fontFamily: 'Arial',
+      fontSize: '28px',
+      fontStyle: 'bold',
+      color: '#3a1b08'
+    })
+    text.setOrigin(0.5)
+    text.setScrollFactor(0)
+    text.setDepth(144)
+
+    button.on('pointerdown', () => {
+      button.y += 4
+      text.y += 4
+    })
+
+    button.on('pointerup', () => {
+      button.y -= 4
+      text.y -= 4
+      callback()
+    })
+
+    button.on('pointerout', () => {
+      button.y = y
+      text.y = y
+    })
+
+    return [shadow, button, text]
+  }
+
   updateHud() {
-    if (!this.hudText) return
+    if (!this.heartsText || !this.coffeeText || !this.scoreText) return
 
     const hearts = '❤️'.repeat(Math.max(this.lives, 0))
     const formattedScore = String(this.score).padStart(6, '0')
 
-    this.hudText.setText(
-      `${hearts}   ☕ ${this.coffeeCount}/${this.totalCoffee}   ⭐ ${formattedScore}`
-    )
+    this.heartsText.setText(hearts)
+    this.coffeeText.setText(`☕ ${this.coffeeCount}/${this.totalCoffee}`)
+    this.scoreText.setText(`⭐ ${formattedScore}`)
   }
 
   showTemporaryMessage(message) {
-    if (!this.messageText || this.isGameOver || this.isVictory) return
+    if (!this.messageText || this.isGameOver || this.isVictory || this.isPaused) return
 
     this.messageText.setText(message)
     this.messageText.setAlpha(0)
@@ -945,13 +1115,22 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   update() {
+    if (Phaser.Input.Keyboard.JustDown(this.keys.pause)) {
+      this.togglePause()
+    }
+
     if (this.isGameOver || this.isVictory) {
       if (Phaser.Input.Keyboard.JustDown(this.keys.restart)) {
-        this.scene.restart()
+        this.physics.resume()
+        this.scene.restart({
+          selectedCharacter: this.selectedCharacter
+        })
       }
 
       return
     }
+
+    if (this.isPaused) return
 
     if (!this.player || !this.player.body || !this.playerVisual || !this.astro) return
 
@@ -1026,6 +1205,12 @@ export default class Level1Scene extends Phaser.Scene {
 
     const size = this.getCharacterDisplaySize()
     this.playerVisual.setDisplaySize(size.width, size.height)
+
+    if (this.playerShadow) {
+      this.playerShadow.x = this.player.x
+      this.playerShadow.y = this.player.y + 72
+      this.playerShadow.setAlpha(this.player.body.blocked.down ? 0.2 : 0.08)
+    }
   }
 
   updateAstro() {
@@ -1037,6 +1222,12 @@ export default class Level1Scene extends Phaser.Scene {
     this.astro.y = Phaser.Math.Linear(this.astro.y, targetY, 0.08)
 
     this.astro.setDisplaySize(120, 95)
+
+    if (this.astroShadow) {
+      this.astroShadow.x = this.astro.x
+      this.astroShadow.y = this.astro.y + 2
+      this.astroShadow.setAlpha(this.player.body.blocked.down ? 0.18 : 0.07)
+    }
   }
 
   updatePlayerTexture() {
