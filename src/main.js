@@ -63,7 +63,7 @@ function setupMobileControls() {
         try {
           button.setPointerCapture(event.pointerId)
         } catch {
-          // iOS puede fallar silenciosamente en algunos casos.
+          // iOS puede fallar silenciosamente.
         }
       }
 
@@ -117,15 +117,14 @@ function setupMobileControls() {
 
 setupMobileControls()
 
-const isMobileDevice =
-  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-  window.matchMedia('(pointer: coarse)').matches
-
 const config = {
   type: Phaser.AUTO,
   parent: 'app',
+
+  // Base 16:9 real
   width: 1280,
   height: 720,
+
   backgroundColor: '#8ed7ff',
 
   physics: {
@@ -144,7 +143,10 @@ const config = {
   },
 
   scale: {
-    mode: isMobileDevice ? Phaser.Scale.ENVELOP : Phaser.Scale.FIT,
+    // IMPORTANTE:
+    // FIT = muestra el juego completo.
+    // ENVELOP = llena pantalla pero recorta.
+    mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 1280,
     height: 720

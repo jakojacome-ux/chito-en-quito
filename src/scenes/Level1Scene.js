@@ -85,6 +85,16 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   create() {
+    document.body.classList.add('gameplay-active')
+
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.cleanGameplayState()
+    })
+
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => {
+      this.cleanGameplayState()
+    })
+
     this.physics.world.setBounds(0, 0, 4200, 900)
 
     this.input.addPointer(6)
@@ -103,6 +113,8 @@ export default class Level1Scene extends Phaser.Scene {
     this.goalMessageCooldown = false
     this.pauseOverlay = []
 
+    this.resetHtmlControls()
+
     this.createTextures()
     this.createBackground()
     this.createPlatforms()
@@ -115,6 +127,25 @@ export default class Level1Scene extends Phaser.Scene {
     this.createControls()
     this.createCamera()
     this.createHud()
+  }
+
+  cleanGameplayState() {
+    document.body.classList.remove('gameplay-active')
+    this.resetHtmlControls()
+  }
+
+  resetHtmlControls() {
+    if (!window.ChitoControls) return
+
+    window.ChitoControls.left = false
+    window.ChitoControls.right = false
+    window.ChitoControls.dash = false
+    window.ChitoControls.jump = false
+    window.ChitoControls.jumpQueued = false
+
+    document.querySelectorAll('.mobile-btn').forEach((button) => {
+      button.classList.remove('is-pressed')
+    })
   }
 
   createTextures() {
@@ -581,6 +612,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.astro.setDisplaySize(138, 110)
     this.astro.setDepth(21)
     this.astro.setAlpha(1)
+    this.astro.clearTint()
   }
 
   createCoffeeItems() {
@@ -1056,14 +1088,7 @@ export default class Level1Scene extends Phaser.Scene {
 
   pauseGame() {
     this.isPaused = true
-
-    if (window.ChitoControls) {
-      window.ChitoControls.left = false
-      window.ChitoControls.right = false
-      window.ChitoControls.dash = false
-      window.ChitoControls.jump = false
-      window.ChitoControls.jumpQueued = false
-    }
+    this.resetHtmlControls()
 
     this.player.setVelocity(0, 0)
     this.physics.pause()
@@ -1295,6 +1320,7 @@ export default class Level1Scene extends Phaser.Scene {
     const size = this.getCharacterDisplaySize()
     this.playerVisual.setDisplaySize(size.width, size.height)
     this.playerVisual.setAlpha(1)
+    this.playerVisual.clearTint()
 
     if (this.playerShadow) {
       this.playerShadow.x = this.player.x + 6
@@ -1315,6 +1341,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.astro.setDisplaySize(138, 110)
     this.astro.setAlpha(1)
     this.astro.setDepth(21)
+    this.astro.clearTint()
 
     if (this.astroShadow) {
       this.astroShadow.x = this.astro.x + 4
@@ -1342,6 +1369,7 @@ export default class Level1Scene extends Phaser.Scene {
       const size = this.getCharacterDisplaySize()
       this.playerVisual.setDisplaySize(size.width, size.height)
       this.playerVisual.setAlpha(1)
+      this.playerVisual.clearTint()
       return
     }
 
@@ -1355,6 +1383,7 @@ export default class Level1Scene extends Phaser.Scene {
     const size = this.getCharacterDisplaySize()
     this.playerVisual.setDisplaySize(size.width, size.height)
     this.playerVisual.setAlpha(1)
+    this.playerVisual.clearTint()
   }
 
   updateAstroTexture() {
@@ -1368,6 +1397,7 @@ export default class Level1Scene extends Phaser.Scene {
       this.astro.setTexture('astroJump')
       this.astro.setDisplaySize(138, 110)
       this.astro.setAlpha(1)
+      this.astro.clearTint()
       return
     }
 
@@ -1381,5 +1411,6 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.astro.setDisplaySize(138, 110)
     this.astro.setAlpha(1)
+    this.astro.clearTint()
   }
 }

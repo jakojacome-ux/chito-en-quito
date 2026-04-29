@@ -25,12 +25,13 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  touch-action: none;
   background: #8ed7ff;
+  touch-action: none;
 }
 
 canvas {
   display: block;
+  margin: auto;
   touch-action: none;
   -webkit-user-select: none;
   user-select: none;
@@ -53,7 +54,6 @@ canvas {
   pointer-events: none;
 }
 
-/* Mantiene buena zona táctil */
 .mobile-controls-left,
 .mobile-controls-right {
   display: flex;
@@ -61,7 +61,7 @@ canvas {
   pointer-events: auto;
 }
 
-/* Botón táctil grande, visual liviano */
+/* Área táctil grande, visual liviano */
 .mobile-btn {
   position: relative;
   width: 88px;
@@ -88,7 +88,6 @@ canvas {
     0 0 14px rgba(0, 0, 0, 0.25);
 }
 
-/* Círculo invisible por defecto */
 .mobile-btn::before {
   content: "";
   position: absolute;
@@ -103,10 +102,7 @@ canvas {
   z-index: -1;
 }
 
-.mobile-btn-blue {
-  color: rgba(255, 255, 255, 0.92);
-}
-
+.mobile-btn-blue,
 .mobile-btn-purple {
   color: rgba(255, 255, 255, 0.92);
 }
@@ -118,7 +114,6 @@ canvas {
     0 0 12px rgba(255, 255, 255, 0.22);
 }
 
-/* Estado presionado: aparece fondo oscuro/sólido */
 .mobile-btn.is-pressed::before {
   background: rgba(6, 17, 31, 0.48);
   box-shadow:
@@ -139,9 +134,9 @@ canvas {
     0 0 14px rgba(0, 0, 0, 0.25);
 }
 
-/* Solo mostrar controles en celular horizontal */
+/* Por ahora: controles visibles solo si el body tiene gameplay-active */
 @media (orientation: landscape) and (max-width: 950px) {
-  #mobile-controls {
+  body.gameplay-active #mobile-controls {
     display: flex;
   }
 }
