@@ -121,16 +121,17 @@ const config = {
   type: Phaser.AUTO,
   parent: 'app',
 
-  // Base 16:9 real
-  width: 1280,
-  height: 720,
+  // Volvemos a la base original del juego.
+  // Las escenas fueron diseñadas sobre 1600x900.
+  width: 1600,
+  height: 900,
 
   backgroundColor: '#8ed7ff',
 
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 1700 },
+      gravity: { y: 2200 },
       debug: false
     }
   },
@@ -143,13 +144,12 @@ const config = {
   },
 
   scale: {
-    // IMPORTANTE:
-    // FIT = muestra el juego completo.
-    // ENVELOP = llena pantalla pero recorta.
+    // FIT muestra el juego completo.
+    // No usamos ENVELOP porque recorta en iPhone.
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1280,
-    height: 720
+    width: 1600,
+    height: 900
   },
 
   scene: [

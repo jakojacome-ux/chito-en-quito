@@ -134,7 +134,7 @@ canvas {
     0 0 14px rgba(0, 0, 0, 0.25);
 }
 
-/* Por ahora: controles visibles solo si el body tiene gameplay-active */
+/* Controles visibles solo durante gameplay */
 @media (orientation: landscape) and (max-width: 950px) {
   body.gameplay-active #mobile-controls {
     display: flex;
