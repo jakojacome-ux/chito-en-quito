@@ -63,7 +63,7 @@ function setupMobileControls() {
         try {
           button.setPointerCapture(event.pointerId)
         } catch {
-          // iOS puede fallar silenciosamente.
+          // iOS puede fallar silenciosamente en algunos casos.
         }
       }
 
@@ -121,8 +121,6 @@ const config = {
   type: Phaser.AUTO,
   parent: 'app',
 
-  // Volvemos a la base original del juego.
-  // Las escenas fueron diseñadas sobre 1600x900.
   width: 1600,
   height: 900,
 
@@ -144,8 +142,6 @@ const config = {
   },
 
   scale: {
-    // FIT muestra el juego completo.
-    // No usamos ENVELOP porque recorta en iPhone.
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 1600,

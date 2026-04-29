@@ -45,12 +45,12 @@ canvas {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  bottom: calc(env(safe-area-inset-bottom) + 24px);
   z-index: 8000;
   display: none;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0 28px;
+  padding: 0 44px;
   pointer-events: none;
 }
 
@@ -61,17 +61,16 @@ canvas {
   pointer-events: auto;
 }
 
-/* Área táctil grande, visual liviano */
 .mobile-btn {
   position: relative;
-  width: 88px;
-  height: 88px;
+  width: 74px;
+  height: 74px;
   border-radius: 50%;
   border: none;
   background: rgba(0, 0, 0, 0.02);
   box-shadow: none;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 58px;
+  font-size: 48px;
   font-weight: 900;
   line-height: 1;
   display: grid;
@@ -91,7 +90,7 @@ canvas {
 .mobile-btn::before {
   content: "";
   position: absolute;
-  inset: 8px;
+  inset: 6px;
   border-radius: 50%;
   background: rgba(0, 0, 0, 0);
   box-shadow: none;
@@ -134,7 +133,7 @@ canvas {
     0 0 14px rgba(0, 0, 0, 0.25);
 }
 
-/* Controles visibles solo durante gameplay */
+/* Los controles solo aparecen durante el nivel */
 @media (orientation: landscape) and (max-width: 950px) {
   body.gameplay-active #mobile-controls {
     display: flex;

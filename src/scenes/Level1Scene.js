@@ -603,6 +603,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.playerVisual.setDisplaySize(size.width, size.height)
     this.playerVisual.setDepth(20)
     this.playerVisual.setAlpha(1)
+    this.playerVisual.clearTint()
 
     this.astroShadow = this.add.ellipse(this.player.x - 112, this.player.y + 73, 92, 24, 0x000000, 0.24)
     this.astroShadow.setDepth(18)
@@ -876,17 +877,17 @@ export default class Level1Scene extends Phaser.Scene {
     this.cameras.main.shake(160, 0.004)
 
     this.victoryText = this.add.text(
-      640,
-      290,
+      800,
+      360,
       `¡NIVEL COMPLETADO!\nEncontraste el café en Quito\n\nBonus vidas: ${bonus}\nPuntaje final: ${this.score}\n\nPresiona R para jugar otra vez`,
       {
         fontFamily: 'Arial',
-        fontSize: '34px',
+        fontSize: '42px',
         fontStyle: 'bold',
         color: '#ffdf77',
         align: 'center',
         stroke: '#3a1b08',
-        strokeThickness: 7
+        strokeThickness: 8
       }
     )
 
@@ -910,9 +911,9 @@ export default class Level1Scene extends Phaser.Scene {
     this.player.setVelocity(0, 0)
     this.physics.pause()
 
-    this.gameOverText = this.add.text(640, 320, 'GAME OVER\nPresiona R para reiniciar', {
+    this.gameOverText = this.add.text(800, 390, 'GAME OVER\nPresiona R para reiniciar', {
       fontFamily: 'Arial',
-      fontSize: '40px',
+      fontSize: '48px',
       fontStyle: 'bold',
       color: '#ffdf77',
       align: 'center',
@@ -942,73 +943,62 @@ export default class Level1Scene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, 4200, 900)
     this.cameras.main.roundPixels = true
 
-    const isMobile =
-      this.sys.game.device.os.iOS ||
-      this.sys.game.device.os.android ||
-      window.innerWidth < 1000
-
-    if (isMobile) {
-      this.cameras.main.setZoom(1.22)
-      this.cameras.main.startFollow(this.player, true, 0.1, 0.1)
-      this.cameras.main.setFollowOffset(0, 95)
-    } else {
-      this.cameras.main.setZoom(1.08)
-      this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
-      this.cameras.main.setFollowOffset(-220, 110)
-    }
+    this.cameras.main.setZoom(1)
+    this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+    this.cameras.main.setFollowOffset(-260, 80)
   }
 
   createHud() {
-    const hudBg = this.add.rectangle(640, 34, 1280, 68, 0x06111f, 0.3)
+    const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.28)
     hudBg.setScrollFactor(0)
     hudBg.setDepth(90)
 
-    this.logoText = this.add.text(24, 11, 'Chito\nQuito', {
+    this.logoText = this.add.text(32, 14, 'Chito\nQuito', {
       fontFamily: 'Arial',
-      fontSize: '25px',
+      fontSize: '30px',
       fontStyle: 'bold',
       color: '#ffbf38',
-      lineSpacing: -9,
+      lineSpacing: -10,
       stroke: '#06223f',
       strokeThickness: 3
     })
     this.logoText.setScrollFactor(0)
     this.logoText.setDepth(91)
 
-    this.createHudPill(160, 10, 320, 46, 0x6d3f20, 0xffbf38)
-    this.levelText = this.add.text(180, 20, 'Nivel 1 · Centro Histórico', {
+    this.createHudPill(172, 16, 430, 52, 0x6d3f20, 0xffbf38)
+    this.levelText = this.add.text(195, 26, 'Nivel 1 · Centro Histórico', {
       fontFamily: 'Arial',
-      fontSize: '22px',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#fff2dc'
     })
     this.levelText.setScrollFactor(0)
     this.levelText.setDepth(93)
 
-    this.createHudPill(520, 10, 130, 46, 0x6d3f20, 0xffbf38)
-    this.heartsText = this.add.text(548, 20, '❤️❤️❤️', {
+    this.createHudPill(650, 16, 170, 52, 0x6d3f20, 0xffbf38)
+    this.heartsText = this.add.text(674, 26, '❤️❤️❤️', {
       fontFamily: 'Arial',
-      fontSize: '22px',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#ffffff'
     })
     this.heartsText.setScrollFactor(0)
     this.heartsText.setDepth(93)
 
-    this.createHudPill(690, 10, 120, 46, 0x3d812d, 0xb7f57e)
-    this.coffeeText = this.add.text(713, 20, '☕ 0/6', {
+    this.createHudPill(850, 16, 150, 52, 0x3d812d, 0xb7f57e)
+    this.coffeeText = this.add.text(878, 26, '☕ 0/6', {
       fontFamily: 'Arial',
-      fontSize: '22px',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#ffffff'
     })
     this.coffeeText.setScrollFactor(0)
     this.coffeeText.setDepth(93)
 
-    this.createHudPill(850, 10, 160, 46, 0x166aa3, 0x7bd6ff)
-    this.scoreText = this.add.text(875, 20, '⭐ 000000', {
+    this.createHudPill(1030, 16, 190, 52, 0x166aa3, 0x7bd6ff)
+    this.scoreText = this.add.text(1058, 26, '⭐ 000000', {
       fontFamily: 'Arial',
-      fontSize: '22px',
+      fontSize: '26px',
       fontStyle: 'bold',
       color: '#ffffff'
     })
@@ -1017,9 +1007,9 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.createPauseButton()
 
-    this.messageText = this.add.text(640, 105, '', {
+    this.messageText = this.add.text(800, 128, '', {
       fontFamily: 'Arial',
-      fontSize: '28px',
+      fontSize: '32px',
       fontStyle: 'bold',
       color: '#ffdf77',
       stroke: '#3a1b08',
@@ -1048,14 +1038,14 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createPauseButton() {
-    const x = 1228
-    const y = 34
+    const x = 1530
+    const y = 43
 
-    const shadow = this.add.circle(x, y + 5, 31, 0x000000, 0.25)
+    const shadow = this.add.circle(x, y + 5, 36, 0x000000, 0.25)
     shadow.setScrollFactor(0)
     shadow.setDepth(100)
 
-    this.pauseButton = this.add.circle(x, y, 31, 0xffbf38, 0.95)
+    this.pauseButton = this.add.circle(x, y, 36, 0xffbf38, 0.95)
     this.pauseButton.setStrokeStyle(4, 0xffffff, 0.38)
     this.pauseButton.setScrollFactor(0)
     this.pauseButton.setDepth(101)
@@ -1063,7 +1053,7 @@ export default class Level1Scene extends Phaser.Scene {
 
     const icon = this.add.text(x, y, 'Ⅱ', {
       fontFamily: 'Arial',
-      fontSize: '30px',
+      fontSize: '34px',
       fontStyle: 'bold',
       color: '#3a1b08'
     })
@@ -1108,18 +1098,18 @@ export default class Level1Scene extends Phaser.Scene {
     this.pauseOverlay.forEach((item) => item.destroy())
     this.pauseOverlay = []
 
-    const dim = this.add.rectangle(640, 360, 1280, 720, 0x06111f, 0.66)
+    const dim = this.add.rectangle(800, 450, 1600, 900, 0x06111f, 0.66)
     dim.setScrollFactor(0)
     dim.setDepth(140)
 
-    const panel = this.add.rectangle(640, 360, 520, 360, 0x081a2d, 0.96)
+    const panel = this.add.rectangle(800, 450, 610, 420, 0x081a2d, 0.96)
     panel.setStrokeStyle(5, 0xffbf38, 0.9)
     panel.setScrollFactor(0)
     panel.setDepth(141)
 
-    const title = this.add.text(640, 250, 'Pausa', {
+    const title = this.add.text(800, 310, 'Pausa', {
       fontFamily: 'Arial',
-      fontSize: '48px',
+      fontSize: '58px',
       fontStyle: 'bold',
       color: '#ffbf38',
       stroke: '#3a1b08',
@@ -1129,18 +1119,18 @@ export default class Level1Scene extends Phaser.Scene {
     title.setScrollFactor(0)
     title.setDepth(142)
 
-    const resume = this.createPauseMenuButton(640, 335, 'Continuar', () => {
+    const resume = this.createPauseMenuButton(800, 410, 'Continuar', () => {
       this.resumeGame()
     })
 
-    const restart = this.createPauseMenuButton(640, 425, 'Reiniciar nivel', () => {
+    const restart = this.createPauseMenuButton(800, 510, 'Reiniciar nivel', () => {
       this.physics.resume()
       this.scene.restart({
         selectedCharacter: this.selectedCharacter
       })
     })
 
-    const menu = this.createPauseMenuButton(640, 515, 'Volver al menú', () => {
+    const menu = this.createPauseMenuButton(800, 610, 'Volver al menú', () => {
       this.physics.resume()
       this.scene.start('MenuScene')
     })
@@ -1149,11 +1139,11 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createPauseMenuButton(x, y, label, callback) {
-    const shadow = this.add.rectangle(x, y + 7, 330, 58, 0x000000, 0.26)
+    const shadow = this.add.rectangle(x, y + 7, 370, 64, 0x000000, 0.26)
     shadow.setScrollFactor(0)
     shadow.setDepth(142)
 
-    const button = this.add.rectangle(x, y, 330, 58, 0xffbf38, 0.96)
+    const button = this.add.rectangle(x, y, 370, 64, 0xffbf38, 0.96)
     button.setStrokeStyle(4, 0xffffff, 0.36)
     button.setScrollFactor(0)
     button.setDepth(143)
@@ -1161,7 +1151,7 @@ export default class Level1Scene extends Phaser.Scene {
 
     const text = this.add.text(x, y, label, {
       fontFamily: 'Arial',
-      fontSize: '25px',
+      fontSize: '28px',
       fontStyle: 'bold',
       color: '#3a1b08'
     })
