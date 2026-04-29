@@ -545,41 +545,61 @@ export default class Level1Scene extends Phaser.Scene {
 
   getCharacterDisplaySize() {
     return {
-      width: 150,
-      height: 150
+      width: 158,
+      height: 158
     }
   }
 
   createPlayer() {
-    this.player = this.physics.add.sprite(140, 650, 'playerBody')
-    this.player.setVisible(false)
-    this.player.setCollideWorldBounds(true)
-    this.player.body.setSize(70, 140)
+  this.player = this.physics.add.sprite(140, 650, 'playerBody')
+  this.player.setVisible(false)
+  this.player.setCollideWorldBounds(true)
+  this.player.body.setSize(70, 140)
 
-    this.physics.add.collider(this.player, this.platforms)
+  this.physics.add.collider(this.player, this.platforms)
 
-    this.playerShadow = this.add.ellipse(this.player.x + 6, this.player.y + 74, 96, 24, 0x000000, 0.24)
-    this.playerShadow.setDepth(17)
+  this.playerShadow = this.add.ellipse(
+    this.player.x + 6,
+    this.player.y + 74,
+    96,
+    24,
+    0x000000,
+    0.24
+  )
+  this.playerShadow.setDepth(17)
 
-    this.playerVisual = this.add.image(
-      this.player.x,
-      this.player.y + 70,
-      this.getCharacterTexture('idle', 1)
-    )
-    this.playerVisual.setOrigin(0.5, 1)
+  this.playerVisual = this.add.image(
+    this.player.x,
+    this.player.y + 70,
+    this.getCharacterTexture('idle', 1)
+  )
+  this.playerVisual.setOrigin(0.5, 1)
 
-    const size = this.getCharacterDisplaySize()
-    this.playerVisual.setDisplaySize(size.width, size.height)
-    this.playerVisual.setDepth(20)
+  const size = this.getCharacterDisplaySize()
+  this.playerVisual.setDisplaySize(size.width, size.height)
+  this.playerVisual.setDepth(20)
+  this.playerVisual.setAlpha(1)
 
-    this.astroShadow = this.add.ellipse(this.player.x - 105, this.player.y + 73, 82, 20, 0x000000, 0.21)
-    this.astroShadow.setDepth(16)
+  this.astroShadow = this.add.ellipse(
+    this.player.x - 105,
+    this.player.y + 73,
+    92,
+    24,
+    0x000000,
+    0.24
+  )
+  this.astroShadow.setDepth(18)
 
-    this.astro = this.add.image(this.player.x - 105, this.player.y + 70, 'astroIdle1')
-    this.astro.setOrigin(0.5, 1)
-    this.astro.setDisplaySize(120, 95)
-    this.astro.setDepth(19)
-  }
+  this.astro = this.add.image(
+    this.player.x - 105,
+    this.player.y + 70,
+    'astroIdle1'
+  )
+  this.astro.setOrigin(0.5, 1)
+  this.astro.setDisplaySize(138, 110)
+  this.astro.setDepth(21)
+  this.astro.setAlpha(1)
+}
 
   createCoffeeItems() {
     this.coffees = this.physics.add.group({
@@ -905,10 +925,23 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createCamera() {
-    this.cameras.main.setBounds(0, 0, 4200, 900)
+  this.cameras.main.setBounds(0, 0, 4200, 900)
+  this.cameras.main.roundPixels = true
+
+  const isMobile =
+    this.sys.game.device.os.iOS ||
+    this.sys.game.device.os.android
+
+  if (isMobile) {
+    this.cameras.main.setZoom(1.22)
+    this.cameras.main.startFollow(this.player, true, 0.1, 0.1)
+    this.cameras.main.setFollowOffset(0, 90)
+  } else {
+    this.cameras.main.setZoom(1.08)
     this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
-    this.cameras.main.setFollowOffset(-350, 120)
+    this.cameras.main.setFollowOffset(-220, 110)
   }
+}
 
   createHud() {
     const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.28)
@@ -1288,53 +1321,49 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   updateAstro() {
-    const directionOffset = this.playerVisual.flipX ? 105 : -105
-    const targetX = this.player.x + directionOffset
-    const targetY = this.player.y + 70
+  const directionOffset = this.playerVisual.flipX ? 112 : -112
+  const targetX = this.player.x + directionOffset
+  const targetY = this.player.y + 70
 
-    this.astro.x = Phaser.Math.Linear(this.astro.x, targetX, 0.08)
-    this.astro.y = Phaser.Math.Linear(this.astro.y, targetY, 0.08)
+  this.astro.x = Phaser.Math.Linear(this.astro.x, targetX, 0.08)
+  this.astro.y = Phaser.Math.Linear(this.astro.y, targetY, 0.08)
 
-    this.astro.setDisplaySize(120, 95)
+  this.astro.setDisplaySize(138, 110)
+  this.astro.setAlpha(1)
 
-    if (this.astroShadow) {
-      this.astroShadow.x = this.astro.x + 4
-      this.astroShadow.y = this.astro.y + 3
-      this.astroShadow.setAlpha(this.player.body.blocked.down ? 0.21 : 0.07)
-      this.astroShadow.setScale(this.player.body.blocked.down ? 1 : 0.72)
-    }
+  if (this.astroShadow) {
+    this.astroShadow.x = this.astro.x + 4
+    this.astroShadow.y = this.astro.y + 4
+    this.astroShadow.setAlpha(this.player.body.blocked.down ? 0.24 : 0.08)
+    this.astroShadow.setScale(this.player.body.blocked.down ? 1 : 0.72)
+  }
+}
+
+  updateAstroTexture() {
+  if (!this.astro || !this.player || !this.player.body) return
+
+  const isMoving = Math.abs(this.player.body.velocity.x) > 20
+  const isJumping = !this.player.body.blocked.down
+  const frame = Math.floor(this.time.now / 140) % 3
+
+  if (isJumping) {
+    this.astro.setTexture('astroJump')
+    this.astro.setDisplaySize(138, 110)
+    this.astro.setAlpha(1)
+    return
   }
 
-  updatePlayerTexture() {
-    if (!this.player || !this.player.body || !this.playerVisual) return
-
-    const body = this.player.body
-    const isMoving = Math.abs(body.velocity.x) > 20
-    const isJumping = !body.blocked.down
-    const frame = Math.floor(this.time.now / 120) % 3
-
-    if (isJumping) {
-      if (body.velocity.y < 0) {
-        this.playerVisual.setTexture(this.getCharacterTexture('jump'))
-      } else {
-        this.playerVisual.setTexture(this.getCharacterTexture('fall'))
-      }
-
-      const size = this.getCharacterDisplaySize()
-      this.playerVisual.setDisplaySize(size.width, size.height)
-      return
-    }
-
-    if (isMoving) {
-      this.playerVisual.setTexture(this.getCharacterTexture('run', frame + 1))
-    } else {
-      const idleFrame = Math.floor(this.time.now / 450) % 2
-      this.playerVisual.setTexture(this.getCharacterTexture('idle', idleFrame + 1))
-    }
-
-    const size = this.getCharacterDisplaySize()
-    this.playerVisual.setDisplaySize(size.width, size.height)
+  if (isMoving) {
+    const frames = ['astroRun1', 'astroRun2', 'astroRun3']
+    this.astro.setTexture(frames[frame])
+  } else {
+    const idleFrame = Math.floor(this.time.now / 500) % 2
+    this.astro.setTexture(idleFrame === 0 ? 'astroIdle1' : 'astroIdle2')
   }
+
+  this.astro.setDisplaySize(138, 110)
+  this.astro.setAlpha(1)
+}
 
   updateAstroTexture() {
     if (!this.astro || !this.player || !this.player.body) return
