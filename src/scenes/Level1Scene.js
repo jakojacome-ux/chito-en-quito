@@ -39,13 +39,6 @@ export default class Level1Scene extends Phaser.Scene {
     this.goalMessageCooldown = false
 
     this.selectedCharacter = 'jako'
-
-    this.touchLeft = false
-    this.touchRight = false
-    this.touchDash = false
-    this.touchJump = false
-    this.touchJumpQueued = false
-    this.touchButtons = []
   }
 
   init(data) {
@@ -108,19 +101,13 @@ export default class Level1Scene extends Phaser.Scene {
     this.isVictory = false
     this.isPaused = false
     this.goalMessageCooldown = false
-
-    this.touchLeft = false
-    this.touchRight = false
-    this.touchDash = false
-    this.touchJump = false
-    this.touchJumpQueued = false
-    this.touchButtons = []
     this.pauseOverlay = []
 
     this.createTextures()
     this.createBackground()
     this.createPlatforms()
     this.createDecorProps()
+    this.createForegroundDepth()
     this.createPlayer()
     this.createCoffeeItems()
     this.createEnemies()
@@ -128,7 +115,6 @@ export default class Level1Scene extends Phaser.Scene {
     this.createControls()
     this.createCamera()
     this.createHud()
-    
   }
 
   createTextures() {
@@ -144,78 +130,131 @@ export default class Level1Scene extends Phaser.Scene {
     g.fillRect(0, 0, 64, 44)
     g.generateTexture('platformBody', 64, 44)
 
+    this.createGroundTexture(g)
+    this.createStonePlatformTexture(g)
+    this.createWoodPlatformTexture(g)
+    this.createCoffeeParticleTexture(g)
+    this.createThiefPlaceholderTexture(g)
+    this.createMistTexture(g)
+    this.createLightTexture(g)
+
+    g.destroy()
+  }
+
+  createGroundTexture(g) {
     g.clear()
-    g.fillStyle(0x7b5135, 1)
-    g.fillRect(0, 0, 128, 180)
 
-    g.fillStyle(0x9a6640, 1)
-    g.fillRect(0, 0, 128, 32)
+    g.fillStyle(0x6e462f, 1)
+    g.fillRect(0, 0, 160, 190)
 
-    g.fillStyle(0xc8843e, 1)
-    for (let x = 0; x < 128; x += 24) {
-      g.fillCircle(x + 12, 5, 11)
+    g.fillStyle(0xb87235, 1)
+    g.fillRect(0, 0, 160, 34)
+
+    g.fillStyle(0xe09b48, 1)
+    for (let x = 0; x < 160; x += 28) {
+      g.fillCircle(x + 14, 5, 12)
     }
 
-    g.fillStyle(0x5d3b27, 1)
-    g.fillRect(0, 58, 128, 8)
-    g.fillRect(0, 116, 128, 7)
+    g.fillStyle(0x4d2f20, 1)
+    g.fillRect(0, 56, 160, 8)
+    g.fillRect(0, 116, 160, 7)
 
-    g.fillStyle(0x6f472e, 1)
-    for (let y = 72; y < 160; y += 28) {
-      for (let x = 0; x < 128; x += 36) {
-        g.fillRect(x + ((y / 28) % 2) * 16, y, 28, 12)
+    g.fillStyle(0x7b5135, 1)
+    for (let y = 72; y < 170; y += 28) {
+      for (let x = 0; x < 160; x += 42) {
+        const offset = y % 56 === 0 ? 0 : 18
+        g.fillRect(x + offset, y, 32, 13)
       }
     }
 
-    g.lineStyle(3, 0xe0b15f, 1)
-    g.strokeRect(0, 0, 128, 180)
-    g.generateTexture('cleanGroundTile', 128, 180)
+    g.fillStyle(0x8f5c3b, 1)
+    g.fillRect(0, 34, 160, 12)
 
+    g.lineStyle(3, 0xf0b85a, 1)
+    g.strokeRect(0, 0, 160, 190)
+
+    g.generateTexture('deepGroundTile', 160, 190)
+  }
+
+  createStonePlatformTexture(g) {
     g.clear()
-    g.fillStyle(0x6e4a33, 1)
-    g.fillRect(0, 0, 128, 64)
 
-    g.fillStyle(0x9b6a45, 1)
-    g.fillRect(0, 0, 128, 15)
+    g.fillStyle(0x5d3f2d, 1)
+    g.fillRect(0, 0, 160, 72)
 
-    g.lineStyle(3, 0xe0b15f, 1)
-    g.strokeRect(0, 0, 128, 64)
+    g.fillStyle(0xa36f47, 1)
+    g.fillRect(0, 0, 160, 17)
 
-    g.fillStyle(0x5c3c29, 1)
-    for (let x = 8; x < 128; x += 34) {
-      g.fillRect(x, 28, 24, 10)
+    g.fillStyle(0x493122, 1)
+    g.fillRect(0, 54, 160, 18)
+
+    g.fillStyle(0x6f4a34, 1)
+    for (let x = 8; x < 160; x += 42) {
+      g.fillRect(x, 28, 30, 11)
     }
 
-    g.generateTexture('cleanStonePlatform', 128, 64)
+    g.lineStyle(3, 0xe7b35c, 1)
+    g.strokeRect(0, 0, 160, 72)
 
+    g.generateTexture('deepStonePlatform', 160, 72)
+  }
+
+  createWoodPlatformTexture(g) {
     g.clear()
-    g.fillStyle(0x8b552c, 1)
-    g.fillRect(0, 0, 128, 64)
 
-    g.fillStyle(0xb8793e, 1)
-    g.fillRect(0, 0, 128, 15)
+    g.fillStyle(0x7a4524, 1)
+    g.fillRect(0, 0, 160, 72)
 
-    g.fillStyle(0x5b321a, 1)
-    g.fillRect(0, 31, 128, 6)
+    g.fillStyle(0xb87539, 1)
+    g.fillRect(0, 0, 160, 17)
 
-    g.lineStyle(3, 0xe0b15f, 1)
-    g.strokeRect(0, 0, 128, 64)
+    g.fillStyle(0x4f2b17, 1)
+    g.fillRect(0, 32, 160, 6)
+    g.fillRect(0, 58, 160, 8)
 
-    g.fillStyle(0x3d2414, 1)
-    for (let x = 16; x < 128; x += 38) {
-      g.fillCircle(x, 42, 4)
-      g.fillCircle(x + 16, 42, 4)
+    g.fillStyle(0x2f1b10, 1)
+    for (let x = 18; x < 160; x += 42) {
+      g.fillCircle(x, 45, 4)
+      g.fillCircle(x + 18, 45, 4)
     }
 
-    g.generateTexture('cleanWoodPlatform', 128, 64)
+    g.lineStyle(3, 0xe7b35c, 1)
+    g.strokeRect(0, 0, 160, 72)
 
+    g.generateTexture('deepWoodPlatform', 160, 72)
+  }
+
+  createCoffeeParticleTexture(g) {
     g.clear()
     g.fillStyle(0xffd978, 1)
     g.fillCircle(8, 8, 8)
     g.generateTexture('coffeeParticle', 16, 16)
+  }
 
+  createMistTexture(g) {
     g.clear()
-    g.fillStyle(0x000000, 0.18)
+    g.fillStyle(0xffffff, 0.18)
+    g.fillEllipse(180, 45, 360, 70)
+    g.fillEllipse(360, 55, 420, 80)
+    g.fillEllipse(580, 42, 360, 65)
+    g.generateTexture('softMist', 760, 110)
+  }
+
+  createLightTexture(g) {
+    g.clear()
+    g.fillStyle(0xffd98a, 0.16)
+    g.fillCircle(120, 120, 120)
+    g.fillStyle(0xffd98a, 0.1)
+    g.fillCircle(120, 120, 90)
+    g.fillStyle(0xffd98a, 0.08)
+    g.fillCircle(120, 120, 55)
+    g.generateTexture('warmGlow', 240, 240)
+  }
+
+  createThiefPlaceholderTexture(g) {
+    g.clear()
+
+    g.fillStyle(0x000000, 0.2)
     g.fillEllipse(39, 103, 60, 14)
 
     g.fillStyle(0x1f2430, 1)
@@ -240,8 +279,6 @@ export default class Level1Scene extends Phaser.Scene {
     g.fillRect(44, 88, 14, 24)
 
     g.generateTexture('thiefPlaceholder', 90, 120)
-
-    g.destroy()
   }
 
   createBackground() {
@@ -250,26 +287,70 @@ export default class Level1Scene extends Phaser.Scene {
     const sky = this.add.image(0, 0, 'sky')
     sky.setOrigin(0, 0)
     sky.setDisplaySize(4200, 900)
-    sky.setScrollFactor(0.05)
+    sky.setScrollFactor(0.04)
     sky.setDepth(0)
+
+    const sunrise = this.add.rectangle(2100, 130, 4200, 260, 0xffc07a, 0.18)
+    sunrise.setScrollFactor(0.03)
+    sunrise.setDepth(0.5)
+
+    const glow1 = this.add.image(650, 130, 'warmGlow')
+    glow1.setDisplaySize(520, 520)
+    glow1.setAlpha(0.42)
+    glow1.setScrollFactor(0.03)
+    glow1.setDepth(0.7)
 
     const mountains = this.add.image(0, 0, 'mountains')
     mountains.setOrigin(0, 0)
     mountains.setDisplaySize(4200, 900)
-    mountains.setScrollFactor(0.15)
+    mountains.setScrollFactor(0.13)
+    mountains.setAlpha(0.82)
     mountains.setDepth(1)
+
+    this.addMist(350, 425, 0.13, 0.36, 1.5)
+    this.addMist(1550, 405, 0.16, 0.28, 1.7)
+    this.addMist(2850, 420, 0.14, 0.34, 1.6)
 
     const cityFar = this.add.image(0, 0, 'cityFar')
     cityFar.setOrigin(0, 0)
     cityFar.setDisplaySize(4200, 900)
-    cityFar.setScrollFactor(0.28)
+    cityFar.setScrollFactor(0.25)
+    cityFar.setAlpha(0.9)
     cityFar.setDepth(2)
+
+    const cityShade = this.add.rectangle(2100, 620, 4200, 250, 0x5f4b44, 0.08)
+    cityShade.setScrollFactor(0.28)
+    cityShade.setDepth(2.5)
 
     const buildingsMid = this.add.image(0, 0, 'buildingsMid')
     buildingsMid.setOrigin(0, 0)
     buildingsMid.setDisplaySize(4200, 900)
-    buildingsMid.setScrollFactor(0.55)
+    buildingsMid.setScrollFactor(0.5)
     buildingsMid.setDepth(3)
+
+    const bottomDepth = this.add.rectangle(2100, 760, 4200, 280, 0x24150f, 0.14)
+    bottomDepth.setScrollFactor(0.65)
+    bottomDepth.setDepth(3.5)
+  }
+
+  addMist(x, y, scroll, alpha, scale) {
+    const mist = this.add.image(x, y, 'softMist')
+    mist.setDisplaySize(760 * scale, 110 * scale)
+    mist.setAlpha(alpha)
+    mist.setScrollFactor(scroll)
+    mist.setDepth(1.6)
+
+    this.tweens.add({
+      targets: mist,
+      x: x + 70,
+      alpha: alpha * 0.75,
+      duration: 4200,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    })
+
+    return mist
   }
 
   createPlatforms() {
@@ -278,17 +359,17 @@ export default class Level1Scene extends Phaser.Scene {
     this.addGround(0, 720, 4200, 180)
 
     const platformData = [
-      { x: 520, y: 610, w: 240, h: 42, key: 'cleanStonePlatform' },
-      { x: 840, y: 535, w: 240, h: 42, key: 'cleanStonePlatform' },
-      { x: 1160, y: 460, w: 240, h: 42, key: 'cleanStonePlatform' },
+      { x: 520, y: 610, w: 240, h: 42, key: 'deepStonePlatform' },
+      { x: 840, y: 535, w: 240, h: 42, key: 'deepStonePlatform' },
+      { x: 1160, y: 460, w: 240, h: 42, key: 'deepStonePlatform' },
 
-      { x: 1600, y: 610, w: 260, h: 42, key: 'cleanWoodPlatform' },
-      { x: 1940, y: 535, w: 260, h: 42, key: 'cleanWoodPlatform' },
-      { x: 2280, y: 460, w: 260, h: 42, key: 'cleanWoodPlatform' },
+      { x: 1600, y: 610, w: 260, h: 42, key: 'deepWoodPlatform' },
+      { x: 1940, y: 535, w: 260, h: 42, key: 'deepWoodPlatform' },
+      { x: 2280, y: 460, w: 260, h: 42, key: 'deepWoodPlatform' },
 
-      { x: 2780, y: 610, w: 240, h: 42, key: 'cleanStonePlatform' },
-      { x: 3100, y: 535, w: 240, h: 42, key: 'cleanStonePlatform' },
-      { x: 3420, y: 460, w: 240, h: 42, key: 'cleanStonePlatform' }
+      { x: 2780, y: 610, w: 240, h: 42, key: 'deepStonePlatform' },
+      { x: 3100, y: 535, w: 240, h: 42, key: 'deepStonePlatform' },
+      { x: 3420, y: 460, w: 240, h: 42, key: 'deepStonePlatform' }
     ]
 
     platformData.forEach((p) => {
@@ -297,12 +378,22 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   addGround(x, y, width, height) {
+    const baseShadow = this.add.rectangle(
+      x + width / 2,
+      y + height / 2 + 18,
+      width,
+      height,
+      0x22140d,
+      0.34
+    )
+    baseShadow.setDepth(3.8)
+
     const base = this.add.rectangle(
       x + width / 2,
       y + height / 2,
       width,
       height,
-      0x7b5135
+      0x6e462f
     )
     base.setDepth(4)
 
@@ -311,9 +402,19 @@ export default class Level1Scene extends Phaser.Scene {
       y + height / 2,
       width,
       height,
-      'cleanGroundTile'
+      'deepGroundTile'
     )
     visual.setDepth(5)
+
+    const topHighlight = this.add.rectangle(
+      x + width / 2,
+      y + 10,
+      width,
+      18,
+      0xffc66c,
+      0.18
+    )
+    topHighlight.setDepth(6)
 
     const platform = this.platforms.create(
       x + width / 2,
@@ -330,12 +431,12 @@ export default class Level1Scene extends Phaser.Scene {
 
   addCleanPlatform(x, y, width, height, visualKey) {
     const shadow = this.add.rectangle(
-      x + width / 2,
-      y + height / 2 + 12,
+      x + width / 2 + 8,
+      y + height / 2 + 18,
       width,
-      64,
+      62,
       0x000000,
-      0.14
+      0.19
     )
     shadow.setDepth(4)
 
@@ -343,8 +444,8 @@ export default class Level1Scene extends Phaser.Scene {
       x + width / 2,
       y + height / 2,
       width,
-      64,
-      0x6e4a33
+      72,
+      0x5d3f2d
     )
     base.setDepth(5)
 
@@ -352,10 +453,20 @@ export default class Level1Scene extends Phaser.Scene {
       x + width / 2,
       y + height / 2,
       width,
-      64,
+      72,
       visualKey
     )
     visual.setDepth(6)
+
+    const topGlow = this.add.rectangle(
+      x + width / 2,
+      y + height / 2 - 25,
+      width - 10,
+      8,
+      0xffd38a,
+      0.18
+    )
+    topGlow.setDepth(7)
 
     const platform = this.platforms.create(
       x + width / 2,
@@ -387,7 +498,7 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   addProp(x, bottomY, key, height) {
-    const shadow = this.add.ellipse(x, bottomY + 4, height * 0.65, 18, 0x000000, 0.16)
+    const shadow = this.add.ellipse(x + 6, bottomY + 5, height * 0.7, 20, 0x000000, 0.18)
     shadow.setDepth(8)
 
     const prop = this.add.image(x, bottomY, key)
@@ -396,6 +507,29 @@ export default class Level1Scene extends Phaser.Scene {
     prop.setDepth(9)
 
     return prop
+  }
+
+  createForegroundDepth() {
+    const vignetteTop = this.add.rectangle(2100, 0, 4200, 120, 0x06111f, 0.13)
+    vignetteTop.setOrigin(0.5, 0)
+    vignetteTop.setScrollFactor(0)
+    vignetteTop.setDepth(80)
+
+    const warmFloor = this.add.rectangle(2100, 720, 4200, 90, 0xffb45a, 0.08)
+    warmFloor.setScrollFactor(0.72)
+    warmFloor.setDepth(10)
+
+    const foregroundMist = this.add.image(900, 690, 'softMist')
+    foregroundMist.setDisplaySize(1200, 150)
+    foregroundMist.setAlpha(0.12)
+    foregroundMist.setScrollFactor(0.85)
+    foregroundMist.setDepth(11)
+
+    const foregroundMist2 = this.add.image(2900, 700, 'softMist')
+    foregroundMist2.setDisplaySize(1300, 150)
+    foregroundMist2.setAlpha(0.1)
+    foregroundMist2.setScrollFactor(0.86)
+    foregroundMist2.setDepth(11)
   }
 
   getCharacterTexture(state, frame = 1) {
@@ -424,7 +558,7 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.physics.add.collider(this.player, this.platforms)
 
-    this.playerShadow = this.add.ellipse(this.player.x, this.player.y + 72, 90, 22, 0x000000, 0.2)
+    this.playerShadow = this.add.ellipse(this.player.x + 6, this.player.y + 74, 96, 24, 0x000000, 0.24)
     this.playerShadow.setDepth(17)
 
     this.playerVisual = this.add.image(
@@ -438,7 +572,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.playerVisual.setDisplaySize(size.width, size.height)
     this.playerVisual.setDepth(20)
 
-    this.astroShadow = this.add.ellipse(this.player.x - 105, this.player.y + 72, 76, 18, 0x000000, 0.18)
+    this.astroShadow = this.add.ellipse(this.player.x - 105, this.player.y + 73, 82, 20, 0x000000, 0.21)
     this.astroShadow.setDepth(16)
 
     this.astro = this.add.image(this.player.x - 105, this.player.y + 70, 'astroIdle1')
@@ -463,8 +597,12 @@ export default class Level1Scene extends Phaser.Scene {
     ]
 
     coffeePositions.forEach((position, index) => {
-      const coffee = this.coffees.create(position.x, position.y, 'coffeeAsset')
+      const glow = this.add.image(position.x, position.y, 'warmGlow')
+      glow.setDisplaySize(100, 100)
+      glow.setAlpha(0.18)
+      glow.setDepth(15)
 
+      const coffee = this.coffees.create(position.x, position.y, 'coffeeAsset')
       coffee.setDisplaySize(56, 56)
       coffee.setDepth(16)
 
@@ -472,12 +610,23 @@ export default class Level1Scene extends Phaser.Scene {
       coffee.body.immovable = true
       coffee.body.setSize(40, 40)
 
+      coffee.setData('glow', glow)
+
       const baseY = position.y
 
       this.tweens.add({
-        targets: coffee,
+        targets: [coffee, glow],
         y: baseY - 10,
         duration: 850 + index * 50,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      })
+
+      this.tweens.add({
+        targets: glow,
+        alpha: 0.32,
+        duration: 720,
         yoyo: true,
         repeat: -1,
         ease: 'Sine.easeInOut'
@@ -506,8 +655,10 @@ export default class Level1Scene extends Phaser.Scene {
     ]
 
     enemyData.forEach((data) => {
-      const enemy = this.enemies.create(data.x, data.y, 'thiefPlaceholder')
+      const shadow = this.add.ellipse(data.x, data.y + 2, 70, 18, 0x000000, 0.21)
+      shadow.setDepth(17)
 
+      const enemy = this.enemies.create(data.x, data.y, 'thiefPlaceholder')
       enemy.setOrigin(0.5, 1)
       enemy.setDisplaySize(86, 110)
       enemy.setDepth(18)
@@ -521,6 +672,7 @@ export default class Level1Scene extends Phaser.Scene {
       enemy.setData('maxX', data.maxX)
       enemy.setData('speed', data.speed)
       enemy.setData('direction', 1)
+      enemy.setData('shadow', shadow)
 
       enemy.setVelocityX(data.speed)
     })
@@ -535,6 +687,14 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createGoal() {
+    const goalShadow = this.add.ellipse(3980, 724, 230, 34, 0x000000, 0.24)
+    goalShadow.setDepth(11)
+
+    const goalGlow = this.add.image(3980, 595, 'warmGlow')
+    goalGlow.setDisplaySize(340, 340)
+    goalGlow.setAlpha(0.2)
+    goalGlow.setDepth(11)
+
     this.goal = this.physics.add.staticImage(3980, 718, 'cafeGoalAsset')
     this.goal.setOrigin(0.5, 1)
     this.goal.setDisplaySize(250, 240)
@@ -550,8 +710,8 @@ export default class Level1Scene extends Phaser.Scene {
     )
 
     this.tweens.add({
-      targets: this.goal,
-      alpha: 0.82,
+      targets: [this.goal, goalGlow],
+      alpha: { from: 0.82, to: 1 },
       duration: 900,
       yoyo: true,
       repeat: -1,
@@ -561,6 +721,9 @@ export default class Level1Scene extends Phaser.Scene {
 
   collectCoffee(player, coffee) {
     if (!coffee.active) return
+
+    const glow = coffee.getData('glow')
+    if (glow) glow.destroy()
 
     coffee.disableBody(true, true)
 
@@ -576,14 +739,14 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createCoffeeCollectEffect(x, y) {
-    for (let i = 0; i < 12; i += 1) {
+    for (let i = 0; i < 14; i += 1) {
       const particle = this.add.image(x, y, 'coffeeParticle')
       particle.setScale(1)
       particle.setAlpha(1)
       particle.setDepth(30)
 
       const angle = Phaser.Math.FloatBetween(0, Math.PI * 2)
-      const distance = Phaser.Math.Between(40, 120)
+      const distance = Phaser.Math.Between(40, 125)
 
       const targetX = x + Math.cos(angle) * distance
       const targetY = y + Math.sin(angle) * distance
@@ -594,7 +757,7 @@ export default class Level1Scene extends Phaser.Scene {
         y: targetY,
         alpha: 0,
         scale: 0,
-        duration: 420,
+        duration: 440,
         ease: 'Quad.easeOut',
         onComplete: () => {
           particle.destroy()
@@ -748,7 +911,7 @@ export default class Level1Scene extends Phaser.Scene {
   }
 
   createHud() {
-    const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.32)
+    const hudBg = this.add.rectangle(800, 42, 1600, 84, 0x06111f, 0.28)
     hudBg.setScrollFactor(0)
     hudBg.setDepth(90)
 
@@ -828,7 +991,7 @@ export default class Level1Scene extends Phaser.Scene {
     shadow.setScrollFactor(0)
     shadow.setDepth(91)
 
-    const pill = this.add.rectangle(x + width / 2, y + height / 2, width, height, color, 0.92)
+    const pill = this.add.rectangle(x + width / 2, y + height / 2, width, height, color, 0.9)
     pill.setStrokeStyle(4, strokeColor, 0.75)
     pill.setScrollFactor(0)
     pill.setDepth(92)
@@ -865,131 +1028,6 @@ export default class Level1Scene extends Phaser.Scene {
     })
   }
 
-  createTouchControls() {
-    const leftButton = this.createTouchButton({
-      x: 96,
-      y: 792,
-      label: '←',
-      color: 0x27bdff,
-      onDown: () => {
-        this.touchLeft = true
-      },
-      onUp: () => {
-        this.touchLeft = false
-      }
-    })
-
-    const rightButton = this.createTouchButton({
-      x: 218,
-      y: 792,
-      label: '→',
-      color: 0x27bdff,
-      onDown: () => {
-        this.touchRight = true
-      },
-      onUp: () => {
-        this.touchRight = false
-      }
-    })
-
-    const dashButton = this.createTouchButton({
-      x: 1355,
-      y: 792,
-      label: '⚡',
-      color: 0x9b55ff,
-      onDown: () => {
-        this.touchDash = true
-      },
-      onUp: () => {
-        this.touchDash = false
-      }
-    })
-
-    const jumpButton = this.createTouchButton({
-      x: 1490,
-      y: 792,
-      label: '↑',
-      color: 0xffbf38,
-      onDown: () => {
-        this.touchJump = true
-        this.touchJumpQueued = true
-      },
-      onUp: () => {
-        this.touchJump = false
-      }
-    })
-
-    this.touchButtons.push(leftButton, rightButton, dashButton, jumpButton)
-  }
-
-  createTouchButton({ x, y, label, color, onDown, onUp }) {
-    const shadow = this.add.circle(x, y + 8, 52, 0x000000, 0.25)
-    shadow.setScrollFactor(0)
-    shadow.setDepth(120)
-
-    const button = this.add.circle(x, y, 52, color, 0.72)
-    button.setStrokeStyle(5, 0xffdf77, 0.86)
-    button.setScrollFactor(0)
-    button.setDepth(121)
-    button.setInteractive({ useHandCursor: true })
-
-    const text = this.add.text(x, y + 1, label, {
-      fontFamily: 'Arial',
-      fontSize: '44px',
-      fontStyle: 'bold',
-      color: '#ffffff',
-      stroke: '#13233a',
-      strokeThickness: 5
-    })
-
-    text.setOrigin(0.5)
-    text.setScrollFactor(0)
-    text.setDepth(122)
-
-    let activePointerId = null
-
-    const press = (pointer) => {
-      if (this.isPaused || this.isGameOver || this.isVictory) return
-      if (activePointerId !== null) return
-
-      activePointerId = pointer.id
-
-      button.setScale(0.92)
-      shadow.setScale(0.92)
-      text.setScale(0.92)
-
-      onDown()
-    }
-
-    const release = (pointer) => {
-      if (activePointerId === null) return
-      if (pointer && pointer.id !== activePointerId) return
-
-      activePointerId = null
-
-      button.setScale(1)
-      shadow.setScale(1)
-      text.setScale(1)
-
-      onUp()
-    }
-
-    button.on('pointerdown', press)
-    button.on('pointerup', release)
-    button.on('pointerout', release)
-    button.on('pointerupoutside', release)
-
-    this.input.on('pointerup', (pointer) => {
-      release(pointer)
-    })
-
-    return {
-      shadow,
-      button,
-      text
-    }
-  }
-
   togglePause() {
     if (this.isGameOver || this.isVictory) return
 
@@ -1002,11 +1040,14 @@ export default class Level1Scene extends Phaser.Scene {
 
   pauseGame() {
     this.isPaused = true
-    this.touchLeft = false
-    this.touchRight = false
-    this.touchDash = false
-    this.touchJump = false
-    this.touchJumpQueued = false
+
+    if (window.ChitoControls) {
+      window.ChitoControls.left = false
+      window.ChitoControls.right = false
+      window.ChitoControls.dash = false
+      window.ChitoControls.jump = false
+      window.ChitoControls.jumpQueued = false
+    }
 
     this.player.setVelocity(0, 0)
     this.physics.pause()
@@ -1190,8 +1231,8 @@ export default class Level1Scene extends Phaser.Scene {
     }
 
     if (window.ChitoControls) {
-  window.ChitoControls.jumpQueued = false
-}
+      window.ChitoControls.jumpQueued = false
+    }
 
     this.updatePlayerVisual()
     this.updateAstro()
@@ -1203,9 +1244,7 @@ export default class Level1Scene extends Phaser.Scene {
   updateEnemies() {
     if (!this.enemies) return
 
-    const enemyList = this.enemies.getChildren
-      ? this.enemies.getChildren()
-      : []
+    const enemyList = this.enemies.getChildren ? this.enemies.getChildren() : []
 
     enemyList.forEach((enemy) => {
       if (!enemy || !enemy.body) return
@@ -1224,6 +1263,12 @@ export default class Level1Scene extends Phaser.Scene {
       enemy.setData('direction', direction)
       enemy.setVelocityX(speed * direction)
       enemy.setFlipX(direction < 0)
+
+      const shadow = enemy.getData('shadow')
+      if (shadow) {
+        shadow.x = enemy.x
+        shadow.y = enemy.y + 2
+      }
     })
   }
 
@@ -1235,9 +1280,10 @@ export default class Level1Scene extends Phaser.Scene {
     this.playerVisual.setDisplaySize(size.width, size.height)
 
     if (this.playerShadow) {
-      this.playerShadow.x = this.player.x
-      this.playerShadow.y = this.player.y + 72
-      this.playerShadow.setAlpha(this.player.body.blocked.down ? 0.2 : 0.08)
+      this.playerShadow.x = this.player.x + 6
+      this.playerShadow.y = this.player.y + 74
+      this.playerShadow.setAlpha(this.player.body.blocked.down ? 0.24 : 0.08)
+      this.playerShadow.setScale(this.player.body.blocked.down ? 1 : 0.72)
     }
   }
 
@@ -1252,9 +1298,10 @@ export default class Level1Scene extends Phaser.Scene {
     this.astro.setDisplaySize(120, 95)
 
     if (this.astroShadow) {
-      this.astroShadow.x = this.astro.x
-      this.astroShadow.y = this.astro.y + 2
-      this.astroShadow.setAlpha(this.player.body.blocked.down ? 0.18 : 0.07)
+      this.astroShadow.x = this.astro.x + 4
+      this.astroShadow.y = this.astro.y + 3
+      this.astroShadow.setAlpha(this.player.body.blocked.down ? 0.21 : 0.07)
+      this.astroShadow.setScale(this.player.body.blocked.down ? 1 : 0.72)
     }
   }
 
