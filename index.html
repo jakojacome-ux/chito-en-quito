@@ -10,22 +10,30 @@
 
     <title>Chito en Quito</title>
 
-    <!-- Web App / iPhone -->
     <meta name="theme-color" content="#06111f" />
     <meta name="apple-mobile-web-app-title" content="Chito en Quito" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
-    <!-- Manifest -->
     <link rel="manifest" href="/manifest.webmanifest" />
-
-    <!-- Icono temporal -->
     <link rel="icon" type="image/svg+xml" href="/icons/chito-icon.svg" />
     <link rel="apple-touch-icon" href="/icons/chito-icon.svg" />
   </head>
 
   <body>
     <div id="app"></div>
+
+    <div id="mobile-controls">
+      <div class="mobile-controls-left">
+        <button class="mobile-btn mobile-btn-blue" data-control="left">←</button>
+        <button class="mobile-btn mobile-btn-blue" data-control="right">→</button>
+      </div>
+
+      <div class="mobile-controls-right">
+        <button class="mobile-btn mobile-btn-purple" data-control="dash">⚡</button>
+        <button class="mobile-btn mobile-btn-yellow" data-control="jump">↑</button>
+      </div>
+    </div>
 
     <div id="rotate-warning">
       <div class="rotate-card">

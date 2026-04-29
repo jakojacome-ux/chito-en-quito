@@ -128,7 +128,7 @@ export default class Level1Scene extends Phaser.Scene {
     this.createControls()
     this.createCamera()
     this.createHud()
-    this.createTouchControls()
+    
   }
 
   createTextures() {
@@ -1158,11 +1158,13 @@ export default class Level1Scene extends Phaser.Scene {
 
     if (!this.player || !this.player.body || !this.playerVisual || !this.astro) return
 
-    const speed = this.keys.dash.isDown || this.touchDash ? 430 : 320
+    const mobileControls = window.ChitoControls || {}
+
+    const speed = this.keys.dash.isDown || mobileControls.dash ? 430 : 320
     const body = this.player.body
 
-    const movingLeft = this.cursors.left.isDown || this.keys.left.isDown || this.touchLeft
-    const movingRight = this.cursors.right.isDown || this.keys.right.isDown || this.touchRight
+    const movingLeft = this.cursors.left.isDown || this.keys.left.isDown || mobileControls.left
+    const movingRight = this.cursors.right.isDown || this.keys.right.isDown || mobileControls.right
 
     if (movingLeft && !movingRight) {
       body.setVelocityX(-speed)
@@ -1181,13 +1183,15 @@ export default class Level1Scene extends Phaser.Scene {
       Phaser.Input.Keyboard.JustDown(this.cursors.space) ||
       Phaser.Input.Keyboard.JustDown(this.keys.jump)
 
-    const jumpPressed = keyboardJumpPressed || this.touchJumpQueued
+    const jumpPressed = keyboardJumpPressed || mobileControls.jumpQueued
 
     if (jumpPressed && body.blocked.down) {
       body.setVelocityY(-820)
     }
 
-    this.touchJumpQueued = false
+    if (window.ChitoControls) {
+  window.ChitoControls.jumpQueued = false
+}
 
     this.updatePlayerVisual()
     this.updateAstro()
