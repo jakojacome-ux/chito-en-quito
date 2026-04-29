@@ -117,17 +117,21 @@ function setupMobileControls() {
 
 setupMobileControls()
 
+const isMobileDevice =
+  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  window.matchMedia('(pointer: coarse)').matches
+
 const config = {
   type: Phaser.AUTO,
   parent: 'app',
-  width: 1600,
-  height: 900,
-  backgroundColor: '#06111f',
+  width: 1280,
+  height: 720,
+  backgroundColor: '#8ed7ff',
 
   physics: {
     default: 'arcade',
     arcade: {
-      gravity: { y: 2200 },
+      gravity: { y: 1700 },
       debug: false
     }
   },
@@ -140,8 +144,10 @@ const config = {
   },
 
   scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH
+    mode: isMobileDevice ? Phaser.Scale.ENVELOP : Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
+    width: 1280,
+    height: 720
   },
 
   scene: [
