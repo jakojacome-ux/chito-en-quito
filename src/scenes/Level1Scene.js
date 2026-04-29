@@ -6,7 +6,9 @@ export default class Level1Scene extends Phaser.Scene {
 
     this.player = null
     this.playerVisual = null
+    this.playerShadow = null
     this.astro = null
+    this.astroShadow = null
 
     this.platforms = null
     this.coffees = null
@@ -91,6 +93,12 @@ export default class Level1Scene extends Phaser.Scene {
 
   create() {
     this.physics.world.setBounds(0, 0, 4200, 900)
+
+    this.input.addPointer(5)
+
+    if (this.input.manager?.canvas) {
+      this.input.manager.canvas.style.touchAction = 'none'
+    }
 
     this.coffeeCount = 0
     this.score = 0
@@ -938,19 +946,31 @@ export default class Level1Scene extends Phaser.Scene {
     text.setScrollFactor(0)
     text.setDepth(122)
 
-    const press = () => {
+    let activePointerId = null
+
+    const press = (pointer) => {
       if (this.isPaused || this.isGameOver || this.isVictory) return
+      if (activePointerId !== null) return
+
+      activePointerId = pointer.id
 
       button.setScale(0.92)
       shadow.setScale(0.92)
       text.setScale(0.92)
+
       onDown()
     }
 
-    const release = () => {
+    const release = (pointer) => {
+      if (activePointerId === null) return
+      if (pointer && pointer.id !== activePointerId) return
+
+      activePointerId = null
+
       button.setScale(1)
       shadow.setScale(1)
       text.setScale(1)
+
       onUp()
     }
 
@@ -958,6 +978,10 @@ export default class Level1Scene extends Phaser.Scene {
     button.on('pointerup', release)
     button.on('pointerout', release)
     button.on('pointerupoutside', release)
+
+    this.input.on('pointerup', (pointer) => {
+      release(pointer)
+    })
 
     return {
       shadow,

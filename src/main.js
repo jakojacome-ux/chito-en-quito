@@ -12,6 +12,7 @@ const config = {
   width: 1600,
   height: 900,
   backgroundColor: '#06111f',
+
   physics: {
     default: 'arcade',
     arcade: {
@@ -19,10 +20,19 @@ const config = {
       debug: false
     }
   },
+
+  input: {
+    keyboard: true,
+    mouse: true,
+    touch: true,
+    activePointers: 5
+  },
+
   scale: {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH
   },
+
   scene: [
     BootScene,
     MenuScene,
