@@ -17,8 +17,8 @@ window.ChitoControls = {
   jumpQueued: false
 }
 
-let userEnteredGame = false
 let game = null
+let userUnlockedGame = false
 
 function isTouchDevice() {
   return (
@@ -81,7 +81,7 @@ function setupMobileControls() {
         try {
           button.setPointerCapture(event.pointerId)
         } catch {
-          // iOS puede fallar aquí sin romper la lógica del botón.
+          // iOS puede fallar aquí sin afectar el control.
         }
       }
 
@@ -135,9 +135,30 @@ function setupMobileControls() {
   })
 }
 
-function createGameIfNeeded() {
-  if (game) return game
+function updateBodyClasses() {
+  const touch = isTouchDevice()
+  const portrait = isPortrait()
 
+  document.body.classList.toggle('touch-device', touch)
+  document.body.classList.toggle('no-touch-device', !touch)
+  document.body.classList.toggle('portrait-mode', portrait)
+  document.body.classList.toggle('landscape-mode', !portrait)
+  document.body.classList.toggle('game-unlocked', userUnlockedGame)
+
+  if (!userUnlockedGame) {
+    document.body.classList.add('landing-active')
+  } else if (touch && portrait) {
+    document.body.classList.add('landing-active')
+  } else {
+    document.body.classList.remove('landing-active')
+  }
+
+  if (touch && portrait) {
+    resetMobileControls()
+  }
+}
+
+function createGame() {
   const config = {
     type: Phaser.AUTO,
     parent: 'game-shell',
@@ -185,59 +206,25 @@ function createGameIfNeeded() {
 
   game = new Phaser.Game(config)
   window.__CHITO_GAME__ = game
-
-  return game
-}
-
-function updateBodyMode() {
-  const touch = isTouchDevice()
-  const portrait = isPortrait()
-
-  document.body.classList.toggle('touch-device', touch)
-  document.body.classList.toggle('portrait-mode', portrait)
-  document.body.classList.toggle('landscape-mode', !portrait)
-  document.body.classList.toggle('entered-game', userEnteredGame)
-
-  /**
-   * Regla principal:
-   * - Antes de entrar: portada visible.
-   * - En desktop: juego visible al entrar.
-   * - En celular vertical: portada visible.
-   * - En celular horizontal: juego visible.
-   */
-  const shouldShowGame = userEnteredGame && (!touch || !portrait)
-
-  document.body.classList.toggle('game-visible', shouldShowGame)
-  document.body.classList.toggle('landing-active', !shouldShowGame)
-
-  if (!shouldShowGame) {
-    resetMobileControls()
-  }
-
-  return shouldShowGame
 }
 
 function refreshLayout() {
-  const shouldShowGame = updateBodyMode()
+  updateBodyClasses()
 
   requestAnimationFrame(() => {
-    if (shouldShowGame) {
-      createGameIfNeeded()
-
-      if (game?.scale) {
-        game.scale.refresh()
-      }
+    if (game?.scale) {
+      game.scale.refresh()
     }
 
     window.scrollTo(0, 0)
 
     setTimeout(() => {
-      if (shouldShowGame && game?.scale) {
+      if (game?.scale) {
         game.scale.refresh()
       }
 
       window.scrollTo(0, 0)
-    }, 180)
+    }, 220)
   })
 }
 
@@ -247,7 +234,7 @@ async function tryLandscapeExperience() {
       await document.documentElement.requestFullscreen()
     }
   } catch {
-    // iPhone Safari normalmente no permite fullscreen desde web normal.
+    // iPhone Safari normalmente no permite fullscreen.
   }
 
   try {
@@ -266,12 +253,12 @@ function setupLanding() {
   if (!enterButton) return
 
   enterButton.addEventListener('click', async () => {
-    userEnteredGame = true
+    userUnlockedGame = true
 
     if (helper) {
       helper.textContent =
         isTouchDevice() && isPortrait()
-          ? 'Gira tu iPhone a horizontal para abrir la aventura.'
+          ? 'Perfecto. Ahora gira tu iPhone a horizontal para abrir la aventura.'
           : 'Cargando aventura...'
     }
 
@@ -282,24 +269,17 @@ function setupLanding() {
 
 setupMobileControls()
 setupLanding()
+createGame()
 refreshLayout()
 
-window.addEventListener('resize', () => {
-  refreshLayout()
-})
+window.addEventListener('resize', refreshLayout)
 
 window.addEventListener('orientationchange', () => {
   resetMobileControls()
 
-  setTimeout(() => {
-    refreshLayout()
-  }, 220)
-
-  setTimeout(() => {
-    refreshLayout()
-  }, 650)
+  setTimeout(refreshLayout, 220)
+  setTimeout(refreshLayout, 650)
+  setTimeout(refreshLayout, 1000)
 })
 
-window.addEventListener('load', () => {
-  refreshLayout()
-})
+window.addEventListener('load', refreshLayout)
