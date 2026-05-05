@@ -18,6 +18,7 @@ window.ChitoControls = {
 }
 
 let userEnteredGame = false
+let game = null
 
 function isTouchDevice() {
   return (
@@ -80,7 +81,7 @@ function setupMobileControls() {
         try {
           button.setPointerCapture(event.pointerId)
         } catch {
-          // Algunos navegadores móviles pueden fallar aquí sin afectar el control.
+          // iOS puede fallar aquí sin romper la lógica del botón.
         }
       }
 
@@ -129,50 +130,14 @@ function setupMobileControls() {
     if (document.hidden) {
       resetMobileControls()
     } else {
-      refreshGameLayout()
+      refreshLayout()
     }
   })
 }
 
-function updateBodyMode() {
-  document.body.classList.toggle('touch-device', isTouchDevice())
-  document.body.classList.toggle('portrait-mode', isPortrait())
-  document.body.classList.toggle('landscape-mode', !isPortrait())
-  document.body.classList.toggle('entered-game', userEnteredGame)
+function createGameIfNeeded() {
+  if (game) return game
 
-  const shouldShowGame = userEnteredGame && (!isTouchDevice() || !isPortrait())
-
-  document.body.classList.toggle('game-visible', shouldShowGame)
-  document.body.classList.toggle('landing-active', !shouldShowGame)
-
-  if (!shouldShowGame) {
-    resetMobileControls()
-  }
-}
-
-async function tryLandscapeExperience() {
-  const root = document.documentElement
-
-  try {
-    if (root.requestFullscreen && !document.fullscreenElement) {
-      await root.requestFullscreen()
-    }
-  } catch {
-    // iPhone Safari normalmente no permite fullscreen desde web normal.
-  }
-
-  try {
-    if (screen.orientation?.lock) {
-      await screen.orientation.lock('landscape')
-    }
-  } catch {
-    // iPhone Safari normalmente no permite bloquear orientación.
-  }
-}
-
-let game = null
-
-function createGame() {
   const config = {
     type: Phaser.AUTO,
     parent: 'game-shell',
@@ -220,26 +185,78 @@ function createGame() {
 
   game = new Phaser.Game(config)
   window.__CHITO_GAME__ = game
+
+  return game
 }
 
-function refreshGameLayout() {
-  updateBodyMode()
+function updateBodyMode() {
+  const touch = isTouchDevice()
+  const portrait = isPortrait()
+
+  document.body.classList.toggle('touch-device', touch)
+  document.body.classList.toggle('portrait-mode', portrait)
+  document.body.classList.toggle('landscape-mode', !portrait)
+  document.body.classList.toggle('entered-game', userEnteredGame)
+
+  /**
+   * Regla principal:
+   * - Antes de entrar: portada visible.
+   * - En desktop: juego visible al entrar.
+   * - En celular vertical: portada visible.
+   * - En celular horizontal: juego visible.
+   */
+  const shouldShowGame = userEnteredGame && (!touch || !portrait)
+
+  document.body.classList.toggle('game-visible', shouldShowGame)
+  document.body.classList.toggle('landing-active', !shouldShowGame)
+
+  if (!shouldShowGame) {
+    resetMobileControls()
+  }
+
+  return shouldShowGame
+}
+
+function refreshLayout() {
+  const shouldShowGame = updateBodyMode()
 
   requestAnimationFrame(() => {
-    if (game?.scale) {
-      game.scale.refresh()
+    if (shouldShowGame) {
+      createGameIfNeeded()
+
+      if (game?.scale) {
+        game.scale.refresh()
+      }
     }
 
     window.scrollTo(0, 0)
 
     setTimeout(() => {
-      if (game?.scale) {
+      if (shouldShowGame && game?.scale) {
         game.scale.refresh()
       }
 
       window.scrollTo(0, 0)
     }, 180)
   })
+}
+
+async function tryLandscapeExperience() {
+  try {
+    if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+      await document.documentElement.requestFullscreen()
+    }
+  } catch {
+    // iPhone Safari normalmente no permite fullscreen desde web normal.
+  }
+
+  try {
+    if (screen.orientation?.lock) {
+      await screen.orientation.lock('landscape')
+    }
+  } catch {
+    // iPhone Safari normalmente no permite bloquear orientación.
+  }
 }
 
 function setupLanding() {
@@ -252,33 +269,37 @@ function setupLanding() {
     userEnteredGame = true
 
     if (helper) {
-      helper.textContent = isTouchDevice() && isPortrait()
-        ? 'Listo. Pon tu iPhone horizontal y la aventura se abrirá automáticamente.'
-        : 'Cargando aventura...'
+      helper.textContent =
+        isTouchDevice() && isPortrait()
+          ? 'Gira tu iPhone a horizontal para abrir la aventura.'
+          : 'Cargando aventura...'
     }
 
     await tryLandscapeExperience()
-    refreshGameLayout()
+    refreshLayout()
   })
 }
 
 setupMobileControls()
 setupLanding()
-createGame()
-refreshGameLayout()
+refreshLayout()
 
-window.addEventListener('resize', refreshGameLayout)
+window.addEventListener('resize', () => {
+  refreshLayout()
+})
 
 window.addEventListener('orientationchange', () => {
   resetMobileControls()
 
   setTimeout(() => {
-    refreshGameLayout()
-  }, 240)
+    refreshLayout()
+  }, 220)
 
   setTimeout(() => {
-    refreshGameLayout()
-  }, 620)
+    refreshLayout()
+  }, 650)
 })
 
-window.addEventListener('load', refreshGameLayout)
+window.addEventListener('load', () => {
+  refreshLayout()
+})
