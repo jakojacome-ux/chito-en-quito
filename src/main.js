@@ -6,12 +6,29 @@ import MenuScene from './scenes/MenuScene.js'
 import CharacterSelectScene from './scenes/CharacterSelectScene.js'
 import Level1Scene from './scenes/Level1Scene.js'
 
+const GAME_WIDTH = 1600
+const GAME_HEIGHT = 900
+
 window.ChitoControls = {
   left: false,
   right: false,
   dash: false,
   jump: false,
   jumpQueued: false
+}
+
+let userEnteredGame = false
+
+function isTouchDevice() {
+  return (
+    'ontouchstart' in window ||
+    navigator.maxTouchPoints > 0 ||
+    navigator.msMaxTouchPoints > 0
+  )
+}
+
+function isPortrait() {
+  return window.innerHeight > window.innerWidth
 }
 
 function resetMobileControls() {
@@ -63,7 +80,7 @@ function setupMobileControls() {
         try {
           button.setPointerCapture(event.pointerId)
         } catch {
-          // iOS puede fallar silenciosamente en algunos casos.
+          // Algunos navegadores móviles pueden fallar aquí sin afectar el control.
         }
       }
 
@@ -111,49 +128,157 @@ function setupMobileControls() {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       resetMobileControls()
+    } else {
+      refreshGameLayout()
     }
   })
 }
 
-setupMobileControls()
+function updateBodyMode() {
+  document.body.classList.toggle('touch-device', isTouchDevice())
+  document.body.classList.toggle('portrait-mode', isPortrait())
+  document.body.classList.toggle('landscape-mode', !isPortrait())
+  document.body.classList.toggle('entered-game', userEnteredGame)
 
-const config = {
-  type: Phaser.AUTO,
-  parent: 'app',
+  const shouldShowGame = userEnteredGame && (!isTouchDevice() || !isPortrait())
 
-  width: 1600,
-  height: 900,
+  document.body.classList.toggle('game-visible', shouldShowGame)
+  document.body.classList.toggle('landing-active', !shouldShowGame)
 
-  backgroundColor: '#8ed7ff',
-
-  physics: {
-    default: 'arcade',
-    arcade: {
-      gravity: { y: 2200 },
-      debug: false
-    }
-  },
-
-  input: {
-    keyboard: true,
-    mouse: true,
-    touch: true,
-    activePointers: 6
-  },
-
-  scale: {
-    mode: Phaser.Scale.FIT,
-    autoCenter: Phaser.Scale.CENTER_BOTH,
-    width: 1600,
-    height: 900
-  },
-
-  scene: [
-    BootScene,
-    MenuScene,
-    CharacterSelectScene,
-    Level1Scene
-  ]
+  if (!shouldShowGame) {
+    resetMobileControls()
+  }
 }
 
-new Phaser.Game(config)
+async function tryLandscapeExperience() {
+  const root = document.documentElement
+
+  try {
+    if (root.requestFullscreen && !document.fullscreenElement) {
+      await root.requestFullscreen()
+    }
+  } catch {
+    // iPhone Safari normalmente no permite fullscreen desde web normal.
+  }
+
+  try {
+    if (screen.orientation?.lock) {
+      await screen.orientation.lock('landscape')
+    }
+  } catch {
+    // iPhone Safari normalmente no permite bloquear orientación.
+  }
+}
+
+let game = null
+
+function createGame() {
+  const config = {
+    type: Phaser.AUTO,
+    parent: 'game-shell',
+
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
+
+    backgroundColor: '#8ed7ff',
+
+    physics: {
+      default: 'arcade',
+      arcade: {
+        gravity: { y: 2200 },
+        debug: false
+      }
+    },
+
+    input: {
+      keyboard: true,
+      mouse: true,
+      touch: true,
+      activePointers: 6
+    },
+
+    render: {
+      antialias: true,
+      roundPixels: false,
+      pixelArt: false
+    },
+
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+      width: GAME_WIDTH,
+      height: GAME_HEIGHT
+    },
+
+    scene: [
+      BootScene,
+      MenuScene,
+      CharacterSelectScene,
+      Level1Scene
+    ]
+  }
+
+  game = new Phaser.Game(config)
+  window.__CHITO_GAME__ = game
+}
+
+function refreshGameLayout() {
+  updateBodyMode()
+
+  requestAnimationFrame(() => {
+    if (game?.scale) {
+      game.scale.refresh()
+    }
+
+    window.scrollTo(0, 0)
+
+    setTimeout(() => {
+      if (game?.scale) {
+        game.scale.refresh()
+      }
+
+      window.scrollTo(0, 0)
+    }, 180)
+  })
+}
+
+function setupLanding() {
+  const enterButton = document.getElementById('enter-game-button')
+  const helper = document.getElementById('landing-helper')
+
+  if (!enterButton) return
+
+  enterButton.addEventListener('click', async () => {
+    userEnteredGame = true
+
+    if (helper) {
+      helper.textContent = isTouchDevice() && isPortrait()
+        ? 'Listo. Pon tu iPhone horizontal y la aventura se abrirá automáticamente.'
+        : 'Cargando aventura...'
+    }
+
+    await tryLandscapeExperience()
+    refreshGameLayout()
+  })
+}
+
+setupMobileControls()
+setupLanding()
+createGame()
+refreshGameLayout()
+
+window.addEventListener('resize', refreshGameLayout)
+
+window.addEventListener('orientationchange', () => {
+  resetMobileControls()
+
+  setTimeout(() => {
+    refreshGameLayout()
+  }, 240)
+
+  setTimeout(() => {
+    refreshGameLayout()
+  }, 620)
+})
+
+window.addEventListener('load', refreshGameLayout)

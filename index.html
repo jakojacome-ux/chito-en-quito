@@ -10,7 +10,7 @@
 
     <title>Chito en Quito</title>
 
-    <meta name="theme-color" content="#06111f" />
+    <meta name="theme-color" content="#d1ab80" />
     <meta name="apple-mobile-web-app-title" content="Chito en Quito" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -20,8 +20,48 @@
     <link rel="apple-touch-icon" href="/icons/chito-icon.svg" />
   </head>
 
-  <body>
-    <div id="app"></div>
+  <body class="landing-active">
+    <section id="landing-screen">
+      <div class="landing-art">
+        <div class="landing-sun"></div>
+        <div class="landing-cloud cloud-one"></div>
+        <div class="landing-cloud cloud-two"></div>
+
+        <div class="landing-mountains mountain-back"></div>
+        <div class="landing-mountains mountain-front"></div>
+
+        <div class="landing-city">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="landing-card">
+          <div class="landing-logo">
+            <span>Chito</span>
+            <span>en Quito</span>
+          </div>
+
+          <p class="landing-subtitle">
+            Encuentra el café en el Centro Histórico
+          </p>
+
+          <button id="enter-game-button" type="button">
+            Entrar al juego
+          </button>
+
+          <p id="landing-helper" class="landing-helper">
+            Diseñado para jugar en horizontal.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <main id="app">
+      <div id="game-shell"></div>
+    </main>
 
     <div id="mobile-controls">
       <div class="mobile-controls-left">
@@ -32,14 +72,6 @@
       <div class="mobile-controls-right">
         <button class="mobile-btn mobile-btn-purple" data-control="dash">⚡</button>
         <button class="mobile-btn mobile-btn-yellow" data-control="jump">↑</button>
-      </div>
-    </div>
-
-    <div id="rotate-warning">
-      <div class="rotate-card">
-        <div class="rotate-icon">📱↔️</div>
-        <h1>Gira tu iPhone</h1>
-        <p>Para jugar mejor, usa el teléfono en horizontal.</p>
       </div>
     </div>
 
